@@ -14,6 +14,56 @@ export type Database = {
   }
   public: {
     Tables: {
+      billings: {
+        Row: {
+          amount: number
+          client_id: string
+          created_at: string
+          id: string
+          is_paid: boolean | null
+          month: number
+          notes: string | null
+          paid_at: string | null
+          updated_at: string
+          user_id: string
+          year: number
+        }
+        Insert: {
+          amount: number
+          client_id: string
+          created_at?: string
+          id?: string
+          is_paid?: boolean | null
+          month: number
+          notes?: string | null
+          paid_at?: string | null
+          updated_at?: string
+          user_id: string
+          year: number
+        }
+        Update: {
+          amount?: number
+          client_id?: string
+          created_at?: string
+          id?: string
+          is_paid?: boolean | null
+          month?: number
+          notes?: string | null
+          paid_at?: string | null
+          updated_at?: string
+          user_id?: string
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "billings_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       client_processes: {
         Row: {
           client_id: string
