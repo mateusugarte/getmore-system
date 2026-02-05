@@ -112,25 +112,31 @@ export const AppSidebar = ({ isDarkMode, onToggleTheme }: AppSidebarProps) => {
         className="relative flex h-screen flex-col border-r border-sidebar-border bg-sidebar"
       >
         {/* Logo */}
-        <div className="flex h-14 items-center justify-between px-3">
+        <div className="flex h-16 items-center justify-center px-3 border-b border-sidebar-border">
           <motion.div
-            animate={{ opacity: collapsed ? 0 : 1 }}
-            className="flex items-center gap-2"
+            animate={{ opacity: 1 }}
+            className="flex items-center justify-center"
           >
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg overflow-hidden">
+            <div className="flex items-center justify-center overflow-hidden">
               <img 
                 src="/logo.png" 
                 alt="Logo" 
-                className="h-8 w-8 object-contain"
+                className={cn(
+                  "object-contain transition-all duration-200",
+                  collapsed ? "h-8 w-8" : "h-12 w-12"
+                )}
               />
             </div>
           </motion.div>
-          
+        </div>
+
+        {/* Collapse Toggle */}
+        <div className="absolute top-4 right-0 translate-x-1/2 z-10">
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="flex h-6 w-6 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
+            className="flex h-5 w-5 items-center justify-center rounded-full bg-sidebar border border-sidebar-border text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground shadow-sm"
           >
-            {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+            {collapsed ? <ChevronRight size={10} /> : <ChevronLeft size={10} />}
           </button>
         </div>
 
