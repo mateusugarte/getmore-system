@@ -12,9 +12,9 @@ import {
 import { AppLayout } from "@/components/AppLayout";
 import { KPICard } from "@/components/KPICard";
 import { ProgressRing } from "@/components/ProgressRing";
-import { Users, DollarSign, Target, TrendingUp, AlertCircle, Calendar, Phone } from "lucide-react";
+import { Users, DollarSign, Target, TrendingUp, AlertCircle, Calendar, Phone, Sparkles } from "lucide-react";
 import { useDashboardStats } from "@/hooks/useDashboardStats";
-import { usePendingBillings, usePaidMRR } from "@/hooks/useBillings";
+import { usePendingBillings, usePaidMRR, useMonthlyRevenue } from "@/hooks/useBillings";
 import { useGoalsByMonth } from "@/hooks/useGoals";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
@@ -27,6 +27,7 @@ const Dashboard = () => {
   const { data: stats, isLoading } = useDashboardStats();
   const { data: pendingBillings } = usePendingBillings();
   const { data: paidMRR } = usePaidMRR();
+  const { data: monthlyRevenue } = useMonthlyRevenue();
 
   const currentMonth = new Date().getMonth() + 1;
   const currentYear = new Date().getFullYear();
@@ -104,9 +105,9 @@ const Dashboard = () => {
 
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
             <KPICard
-              title="Vendas do Mês"
-              value={`R$ ${((stats?.monthRevenue || 0) / 1000).toFixed(1)}k`}
-              subtitle={`${stats?.salesCount || 0} vendas`}
+              title="Faturamento"
+              value={`R$ ${((monthlyRevenue?.total || 0) / 1000).toFixed(1)}k`}
+              subtitle={`Vendas: R$ ${((monthlyRevenue?.sales || 0) / 1000).toFixed(1)}k`}
               icon={<DollarSign size={16} />}
             />
           </motion.div>

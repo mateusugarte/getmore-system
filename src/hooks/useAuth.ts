@@ -52,10 +52,31 @@ export const useAuth = () => {
         .from("profiles")
         .select("*")
         .eq("user_id", userId)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
-      setProfile(data);
+      
+      // If no profile exists, create one
+      if (!data) {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: newProfile, error: insertError } = await supabase
+            .from("profiles")
+            .insert({
+              user_id: userId,
+              email: user.email,
+              full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Usuário',
+            })
+            .select()
+            .single();
+
+          if (!insertError && newProfile) {
+            setProfile(newProfile);
+          }
+        }
+      } else {
+        setProfile(data);
+      }
     } catch (error) {
       console.error("Error fetching profile:", error);
     } finally {

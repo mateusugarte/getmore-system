@@ -196,3 +196,48 @@ export const usePaidMRR = () => {
     },
   });
 };
+
+// Total revenue = sales from clients + paid recurrences
+export const useMonthlyRevenue = () => {
+  return useQuery({
+    queryKey: ["revenue", "monthly"],
+    queryFn: async () => {
+      const now = new Date();
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+      const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59).toISOString();
+
+      // Get all clients created this month with sale values
+      const { data: clients, error: clientsError } = await supabase
+        .from("clients")
+        .select("sale_value, recurrence_value, is_recurrent")
+        .gte("created_at", startOfMonth)
+        .lte("created_at", endOfMonth);
+
+      if (clientsError) throw clientsError;
+
+      // Sum sale values
+      const salesRevenue = clients?.reduce((acc, c) => acc + (c.sale_value || 0), 0) || 0;
+
+      // Get paid billings this month
+      const month = now.getMonth() + 1;
+      const year = now.getFullYear();
+
+      const { data: billings, error: billingsError } = await supabase
+        .from("billings")
+        .select("amount")
+        .eq("month", month)
+        .eq("year", year)
+        .eq("is_paid", true);
+
+      if (billingsError) throw billingsError;
+
+      const recurrenceRevenue = billings?.reduce((acc, b) => acc + (b.amount || 0), 0) || 0;
+
+      return {
+        sales: salesRevenue,
+        recurrence: recurrenceRevenue,
+        total: salesRevenue + recurrenceRevenue,
+      };
+    },
+  });
+};

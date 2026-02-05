@@ -126,28 +126,15 @@ const Cobrancas = () => {
             <p className="text-xs text-muted-foreground">Gestão de pagamentos recorrentes</p>
           </div>
 
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 bg-muted rounded-md p-1">
-              <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => navigateMonth("prev")}>
-                <ChevronLeft size={14} />
-              </Button>
-              <span className="text-sm font-medium px-2 min-w-[100px] text-center">
-                {monthNames[currentMonth - 1]} {currentYear}
-              </span>
-              <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => navigateMonth("next")}>
-                <ChevronRight size={14} />
-              </Button>
-            </div>
-
-            <Button
-              size="sm"
-              variant="outline"
-              className="h-8 text-xs"
-              onClick={handleGenerateBillings}
-              disabled={generateBillings.isPending}
-            >
-              <RefreshCw size={12} className={cn("mr-1", generateBillings.isPending && "animate-spin")} />
-              Gerar Cobranças
+          <div className="flex items-center gap-1 bg-muted rounded-md p-1">
+            <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => navigateMonth("prev")}>
+              <ChevronLeft size={14} />
+            </Button>
+            <span className="text-sm font-medium px-2 min-w-[100px] text-center">
+              {monthNames[currentMonth - 1]} {currentYear}
+            </span>
+            <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => navigateMonth("next")}>
+              <ChevronRight size={14} />
             </Button>
           </div>
         </div>
