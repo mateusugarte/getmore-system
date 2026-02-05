@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   LayoutDashboard,
@@ -22,6 +22,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/hooks/useAuth";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -38,45 +39,50 @@ interface AppSidebarProps {
 export const AppSidebar = ({ isDarkMode, onToggleTheme }: AppSidebarProps) => {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { profile, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/auth");
+  };
+
+  const initials = profile?.full_name
+    ? profile.full_name.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()
+    : profile?.email?.[0]?.toUpperCase() || "U";
 
   return (
     <motion.aside
       initial={false}
-      animate={{ width: collapsed ? 80 : 280 }}
-      transition={{ duration: 0.3, ease: "easeInOut" }}
+      animate={{ width: collapsed ? 60 : 220 }}
+      transition={{ duration: 0.2, ease: "easeOut" }}
       className="relative flex h-screen flex-col border-r border-sidebar-border bg-sidebar"
     >
       {/* Logo */}
-      <div className="flex h-20 items-center justify-between px-4">
+      <div className="flex h-14 items-center justify-between px-3">
         <motion.div
           animate={{ opacity: collapsed ? 0 : 1 }}
-          className="flex items-center gap-3"
+          className="flex items-center gap-2"
         >
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl overflow-hidden">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg overflow-hidden">
             <img 
               src="/logo.png" 
-              alt="GetMore System" 
-              className="h-12 w-12 object-contain"
+              alt="Logo" 
+              className="h-8 w-8 object-contain"
             />
           </div>
-          {!collapsed && (
-            <div className="flex flex-col">
-              <span className="text-lg font-bold text-foreground">GetMore</span>
-              <span className="text-xs font-medium text-gold">System</span>
-            </div>
-          )}
         </motion.div>
         
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
+          className="flex h-6 w-6 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
         >
-          {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+          {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
         </button>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-1 px-3 py-4">
+      <nav className="flex-1 space-y-0.5 px-2 py-2">
         {navigation.map((item) => {
           const isActive = location.pathname === item.href;
           return (
@@ -84,13 +90,13 @@ export const AppSidebar = ({ isDarkMode, onToggleTheme }: AppSidebarProps) => {
               key={item.name}
               to={item.href}
               className={cn(
-                "flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-all duration-200",
+                "flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium transition-all duration-150",
                 isActive
-                  ? "bg-primary text-primary-foreground shadow-glow"
+                  ? "bg-primary text-primary-foreground"
                   : "text-sidebar-foreground hover:bg-sidebar-accent"
               )}
             >
-              <item.icon size={20} />
+              <item.icon size={16} />
               {!collapsed && <span>{item.name}</span>}
             </NavLink>
           );
@@ -98,51 +104,55 @@ export const AppSidebar = ({ isDarkMode, onToggleTheme }: AppSidebarProps) => {
       </nav>
 
       {/* Theme Toggle */}
-      <div className="px-3 py-2">
+      <div className="px-2 py-1">
         <button
           onClick={onToggleTheme}
           className={cn(
-            "flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-all duration-200",
+            "flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium transition-all duration-150",
             "text-sidebar-foreground hover:bg-sidebar-accent"
           )}
         >
-          {isDarkMode ? <Sun size={20} className="text-gold" /> : <Moon size={20} />}
-          {!collapsed && <span>{isDarkMode ? "Modo Claro" : "Modo Escuro"}</span>}
+          {isDarkMode ? <Sun size={16} className="text-amber-500" /> : <Moon size={16} />}
+          {!collapsed && <span>{isDarkMode ? "Claro" : "Escuro"}</span>}
         </button>
       </div>
 
       {/* User Profile */}
-      <div className="border-t border-sidebar-border p-3">
+      <div className="border-t border-sidebar-border p-2">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
               className={cn(
-                "flex w-full items-center gap-3 rounded-xl px-3 py-2 transition-colors hover:bg-sidebar-accent",
+                "flex w-full items-center gap-2 rounded-md px-2 py-1.5 transition-colors hover:bg-sidebar-accent",
                 collapsed && "justify-center"
               )}
             >
-              <Avatar className="h-9 w-9 border-2 border-gold/30">
-                <AvatarImage src="" />
-                <AvatarFallback className="bg-gold/10 text-gold font-semibold">
-                  U
+              <Avatar className="h-7 w-7 border border-border">
+                <AvatarImage src={profile?.avatar_url || ""} />
+                <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">
+                  {initials}
                 </AvatarFallback>
               </Avatar>
               {!collapsed && (
-                <div className="flex-1 text-left">
-                  <p className="text-sm font-medium text-sidebar-foreground">Usuário</p>
-                  <p className="text-xs text-muted-foreground">usuario@email.com</p>
+                <div className="flex-1 text-left min-w-0">
+                  <p className="text-xs font-medium text-sidebar-foreground truncate">
+                    {profile?.full_name || "Usuário"}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground truncate">
+                    {profile?.email}
+                  </p>
                 </div>
               )}
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
+          <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuItem>
-              <Settings className="mr-2 h-4 w-4" />
+              <Settings className="mr-2 h-3.5 w-3.5" />
               Configurações
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive">
-              <LogOut className="mr-2 h-4 w-4" />
+            <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
+              <LogOut className="mr-2 h-3.5 w-3.5" />
               Sair
             </DropdownMenuItem>
           </DropdownMenuContent>

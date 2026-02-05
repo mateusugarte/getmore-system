@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Loader2 } from "lucide-react";
 
 interface GlobalLoaderProps {
   isLoading: boolean;
@@ -14,50 +15,13 @@ export const GlobalLoader = ({ isLoading }: GlobalLoaderProps) => {
       exit={{ opacity: 0 }}
       className="fixed inset-0 z-50 flex items-center justify-center bg-background"
     >
-      <div className="relative flex flex-col items-center gap-6">
-        {/* Logo with pulse animation */}
+      <div className="flex flex-col items-center gap-3">
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="relative"
+          transition={{ duration: 0.3 }}
         >
-          {/* Outer spinning gold ring */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="h-32 w-32 rounded-full border-4 border-transparent border-t-gold animate-spin-gold" />
-          </div>
-          
-          {/* Inner glow ring */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="h-28 w-28 rounded-full bg-gold/10 animate-pulse-logo" />
-          </div>
-
-          {/* Logo */}
-          <motion.div
-            animate={{ scale: [1, 1.05, 1] }}
-            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-            className="relative z-10 flex h-24 w-24 items-center justify-center"
-          >
-            <img 
-              src="/logo.png" 
-              alt="GetMore System" 
-              className="h-20 w-20 object-contain drop-shadow-lg"
-            />
-          </motion.div>
-        </motion.div>
-
-        {/* Brand name */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="text-center"
-        >
-          <h1 className="text-2xl font-bold">
-            <span className="text-foreground">GetMore</span>
-            <span className="text-gold ml-1">System</span>
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">Carregando...</p>
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
         </motion.div>
       </div>
     </motion.div>
