@@ -14,7 +14,7 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -53,13 +53,14 @@ export default {
         gold: {
           DEFAULT: "hsl(var(--gold))",
           foreground: "hsl(var(--gold-foreground))",
+          metallic: "hsl(var(--gold-metallic))",
         },
         coffee: {
           DEFAULT: "hsl(var(--coffee))",
+          dark: "hsl(var(--coffee-dark))",
           light: "hsl(var(--coffee-light))",
         },
         cream: "hsl(var(--cream))",
-        ocre: "hsl(var(--ocre))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
@@ -86,39 +87,19 @@ export default {
           to: { height: "0" },
         },
         "fade-in": {
-          "0%": { opacity: "0", transform: "translateY(10px)" },
+          "0%": { opacity: "0", transform: "translateY(8px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
-        "fade-out": {
-          "0%": { opacity: "1", transform: "translateY(0)" },
-          "100%": { opacity: "0", transform: "translateY(10px)" },
-        },
         "scale-in": {
-          "0%": { transform: "scale(0.95)", opacity: "0" },
+          "0%": { transform: "scale(0.96)", opacity: "0" },
           "100%": { transform: "scale(1)", opacity: "1" },
-        },
-        "slide-in-right": {
-          "0%": { transform: "translateX(100%)" },
-          "100%": { transform: "translateX(0)" },
-        },
-        "pulse-logo": {
-          "0%, 100%": { transform: "scale(1)", opacity: "1" },
-          "50%": { transform: "scale(1.08)", opacity: "0.9" },
-        },
-        "spin-gold": {
-          "0%": { transform: "rotate(0deg)" },
-          "100%": { transform: "rotate(360deg)" },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "fade-in": "fade-in 0.4s ease-out",
-        "fade-out": "fade-out 0.3s ease-out",
-        "scale-in": "scale-in 0.3s ease-out",
-        "slide-in-right": "slide-in-right 0.4s ease-out",
-        "pulse-logo": "pulse-logo 2s ease-in-out infinite",
-        "spin-gold": "spin-gold 2s linear infinite",
+        "fade-in": "fade-in 0.3s ease-out",
+        "scale-in": "scale-in 0.2s ease-out",
       },
     },
   },
