@@ -13,6 +13,7 @@ import {
   ChevronRight,
   Moon,
   Sun,
+  Crown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -42,6 +43,7 @@ const navigation = [
   { name: "Clientes", href: "/clientes", icon: Users },
   { name: "Cobranças", href: "/cobrancas", icon: Receipt },
   { name: "Metas", href: "/metas", icon: Target },
+  { name: "Assinatura", href: "/assinatura", icon: Crown },
 ];
 
 interface AppSidebarProps {
