@@ -30,21 +30,25 @@ const SubscriptionContext = createContext<SubscriptionContextType | undefined>(u
 
 export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
   const { user, loading: authLoading } = useAuth();
+  const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(false);
   const [state, setState] = useState<SubscriptionState>({
     subscribed: false,
     productId: null,
     subscriptionEnd: null,
-    isLoading: false,
+    isLoading: true, // Start with loading true for initial check
     error: null,
   });
 
-  const checkSubscription = useCallback(async () => {
+  const checkSubscription = useCallback(async (isInitial = false) => {
     if (!user) {
-      setState(prev => ({ ...prev, subscribed: false, productId: null, subscriptionEnd: null }));
+      setState(prev => ({ ...prev, subscribed: false, productId: null, subscriptionEnd: null, isLoading: false }));
       return;
     }
 
-    setState(prev => ({ ...prev, isLoading: true, error: null }));
+    // Only show loading on initial check, not background refreshes
+    if (isInitial) {
+      setState(prev => ({ ...prev, isLoading: true, error: null }));
+    }
 
     try {
       const { data, error } = await supabase.functions.invoke("check-subscription");
@@ -106,19 +110,22 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [user]);
 
-  // Check subscription on auth state change
+  // Check subscription on auth state change (initial load only)
   useEffect(() => {
-    if (!authLoading && user) {
-      checkSubscription();
+    if (!authLoading && user && !hasInitiallyLoaded) {
+      setHasInitiallyLoaded(true);
+      checkSubscription(true); // Initial check with loading
+    } else if (!authLoading && !user) {
+      setState(prev => ({ ...prev, isLoading: false }));
     }
-  }, [user, authLoading, checkSubscription]);
+  }, [user, authLoading, hasInitiallyLoaded, checkSubscription]);
 
-  // Periodic refresh every 60 seconds
+  // Periodic refresh every 60 seconds (background, no loading spinner)
   useEffect(() => {
     if (!user) return;
     
     const interval = setInterval(() => {
-      checkSubscription();
+      checkSubscription(false); // Background refresh, no loading
     }, 60000);
 
     return () => clearInterval(interval);
