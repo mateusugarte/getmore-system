@@ -6,120 +6,109 @@
 
 @layer base {
   :root {
-    /* GetMore System - Coffee & Gold Theme - Light Mode */
-    --background: 0 0% 100%;
-    --foreground: 20 30% 12%;
+    /* Clean Minimalist Theme - Light Mode */
+    --background: 0 0% 98%;
+    --foreground: 220 15% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 20 30% 12%;
+    --card-foreground: 220 15% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 20 30% 12%;
+    --popover-foreground: 220 15% 15%;
 
-    --primary: 20 35% 15%;
+    --primary: 350 70% 50%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 30 15% 95%;
-    --secondary-foreground: 20 30% 15%;
+    --secondary: 220 10% 96%;
+    --secondary-foreground: 220 15% 25%;
 
-    --muted: 30 10% 96%;
-    --muted-foreground: 20 10% 45%;
+    --muted: 220 10% 96%;
+    --muted-foreground: 220 10% 45%;
 
-    --accent: 40 80% 50%;
-    --accent-foreground: 20 35% 12%;
+    --accent: 350 70% 50%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 30 15% 90%;
-    --input: 30 15% 90%;
-    --ring: 20 35% 15%;
+    --border: 220 10% 92%;
+    --input: 220 10% 92%;
+    --ring: 350 70% 50%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
-    /* Custom tokens - Light */
+    /* Custom tokens */
     --gold: 45 90% 50%;
-    --gold-foreground: 20 35% 12%;
-    --coffee: 20 35% 15%;
-    --coffee-light: 25 20% 25%;
-    --cream: 40 30% 97%;
-    --ocre: 35 70% 45%;
-
-    /* Gradients */
-    --gradient-coffee: linear-gradient(135deg, hsl(20 35% 15%) 0%, hsl(25 30% 22%) 100%);
-    --gradient-gold: linear-gradient(135deg, hsl(45 90% 50%) 0%, hsl(38 85% 45%) 100%);
-    --gradient-warm: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(30 20% 97%) 100%);
+    --gold-foreground: 220 15% 15%;
+    --rose: 350 70% 50%;
+    --rose-light: 350 70% 95%;
 
     /* Shadows */
-    --shadow-sm: 0 1px 2px 0 hsl(20 35% 15% / 0.04);
-    --shadow-md: 0 4px 6px -1px hsl(20 35% 15% / 0.06), 0 2px 4px -2px hsl(20 35% 15% / 0.04);
-    --shadow-lg: 0 10px 15px -3px hsl(20 35% 15% / 0.08), 0 4px 6px -4px hsl(20 35% 15% / 0.05);
-    --shadow-glow: 0 0 20px hsl(45 90% 50% / 0.15);
+    --shadow-sm: 0 1px 2px 0 hsl(220 15% 15% / 0.03);
+    --shadow-md: 0 2px 4px -1px hsl(220 15% 15% / 0.04);
+    --shadow-lg: 0 4px 6px -2px hsl(220 15% 15% / 0.05);
 
     /* Sidebar */
     --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 20 30% 15%;
-    --sidebar-primary: 20 35% 15%;
+    --sidebar-foreground: 220 15% 25%;
+    --sidebar-primary: 350 70% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 30 15% 95%;
-    --sidebar-accent-foreground: 20 30% 15%;
-    --sidebar-border: 30 15% 92%;
-    --sidebar-ring: 45 90% 50%;
+    --sidebar-accent: 220 10% 96%;
+    --sidebar-accent-foreground: 220 15% 25%;
+    --sidebar-border: 220 10% 94%;
+    --sidebar-ring: 350 70% 50%;
   }
 
   .dark {
-    /* GetMore System - Coffee & Gold Theme - Dark Mode */
-    --background: 20 30% 7%;
-    --foreground: 40 20% 96%;
+    /* Clean Minimalist Theme - Dark Mode */
+    --background: 220 20% 8%;
+    --foreground: 220 10% 95%;
 
-    --card: 20 25% 10%;
-    --card-foreground: 40 20% 96%;
+    --card: 220 20% 10%;
+    --card-foreground: 220 10% 95%;
 
-    --popover: 20 25% 10%;
-    --popover-foreground: 40 20% 96%;
+    --popover: 220 20% 10%;
+    --popover-foreground: 220 10% 95%;
 
-    --primary: 45 90% 55%;
-    --primary-foreground: 20 35% 8%;
+    --primary: 350 70% 55%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 20 20% 15%;
-    --secondary-foreground: 45 80% 60%;
+    --secondary: 220 15% 15%;
+    --secondary-foreground: 220 10% 85%;
 
-    --muted: 20 18% 14%;
-    --muted-foreground: 30 15% 55%;
+    --muted: 220 15% 15%;
+    --muted-foreground: 220 10% 55%;
 
-    --accent: 45 90% 55%;
-    --accent-foreground: 20 35% 8%;
+    --accent: 350 70% 55%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 62% 45%;
+    --destructive: 0 62% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 20 18% 16%;
-    --input: 20 18% 16%;
-    --ring: 45 90% 55%;
+    --border: 220 15% 16%;
+    --input: 220 15% 16%;
+    --ring: 350 70% 55%;
 
     /* Custom tokens - Dark */
     --gold: 45 90% 55%;
-    --gold-foreground: 20 35% 8%;
-    --coffee: 20 30% 7%;
-    --coffee-light: 20 25% 12%;
-    --cream: 40 20% 96%;
-    --ocre: 35 70% 55%;
+    --gold-foreground: 220 15% 8%;
+    --rose: 350 70% 55%;
+    --rose-light: 350 70% 15%;
 
     /* Shadows dark */
-    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.25);
-    --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.3), 0 2px 4px -2px hsl(0 0% 0% / 0.25);
-    --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.35), 0 4px 6px -4px hsl(0 0% 0% / 0.3);
-    --shadow-glow: 0 0 25px hsl(45 90% 55% / 0.25);
+    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.2);
+    --shadow-md: 0 2px 4px -1px hsl(0 0% 0% / 0.25);
+    --shadow-lg: 0 4px 6px -2px hsl(0 0% 0% / 0.3);
 
     /* Sidebar dark */
-    --sidebar-background: 20 28% 9%;
-    --sidebar-foreground: 40 20% 94%;
-    --sidebar-primary: 45 90% 55%;
-    --sidebar-primary-foreground: 20 35% 8%;
-    --sidebar-accent: 20 22% 14%;
-    --sidebar-accent-foreground: 45 80% 65%;
-    --sidebar-border: 20 20% 14%;
-    --sidebar-ring: 45 90% 55%;
+    --sidebar-background: 220 20% 9%;
+    --sidebar-foreground: 220 10% 90%;
+    --sidebar-primary: 350 70% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 15% 14%;
+    --sidebar-accent-foreground: 220 10% 85%;
+    --sidebar-border: 220 15% 14%;
+    --sidebar-ring: 350 70% 55%;
   }
 }
 
@@ -139,87 +128,49 @@
 }
 
 @layer components {
-  /* Card variants */
+  /* Compact card */
   .card-elevated {
-    @apply bg-card rounded-xl border border-border;
-    box-shadow: var(--shadow-md);
+    @apply bg-card rounded-lg border border-border;
+    box-shadow: var(--shadow-sm);
   }
 
-  .card-glass {
-    @apply bg-card/80 backdrop-blur-sm rounded-xl border border-border/50;
-  }
-
-  /* Button variants */
-  .btn-primary {
-    @apply bg-primary text-primary-foreground hover:opacity-90 transition-all duration-200;
-  }
-
-  .btn-ghost {
-    @apply text-foreground hover:bg-muted transition-all duration-200;
-  }
-
-  .btn-gold {
-    background: var(--gradient-gold);
-    @apply text-primary-foreground hover:opacity-90 transition-all duration-200;
-  }
-
-  /* Status badges */
+  /* Status badges - compact */
   .badge-contato {
-    @apply bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300;
+    @apply bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400;
   }
 
   .badge-aquecendo {
-    @apply bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300;
+    @apply bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400;
   }
 
   .badge-proposta {
-    @apply bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300;
+    @apply bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400;
   }
 
   .badge-concluida {
-    @apply bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300;
+    @apply bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400;
   }
 
-  /* Source badges */
+  /* Source badges - compact */
   .source-instagram {
-    @apply bg-gradient-to-r from-pink-500 to-purple-500 text-white;
+    @apply bg-gradient-to-r from-pink-500 to-purple-500 text-white text-xs;
   }
 
   .source-trafego {
-    @apply bg-gradient-to-r from-blue-500 to-cyan-500 text-white;
+    @apply bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-xs;
   }
 
   .source-indicacao {
-    @apply bg-gradient-to-r from-emerald-500 to-teal-500 text-white;
+    @apply bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-xs;
   }
 
   .source-prospeccao {
-    @apply bg-gradient-to-r from-orange-500 to-amber-500 text-white;
+    @apply bg-gradient-to-r from-orange-500 to-amber-500 text-white text-xs;
   }
 
-  /* Kanban column */
+  /* Kanban column - compact */
   .kanban-column {
-    @apply bg-muted/50 rounded-xl p-4 min-h-[500px];
-  }
-
-  /* Animated elements */
-  .animate-pulse-soft {
-    animation: pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
-
-  @keyframes pulse-soft {
-    0%, 100% {
-      opacity: 1;
-      transform: scale(1);
-    }
-    50% {
-      opacity: 0.8;
-      transform: scale(1.05);
-    }
-  }
-
-  .animate-spin-slow {
-    animation: spin 3s linear infinite;
+    @apply bg-muted/30 rounded-lg p-3 min-h-[400px];
   }
 
   /* Progress ring */
@@ -231,40 +182,18 @@
     transition: stroke-dashoffset 0.5s ease-out;
   }
 
-  /* Gold glow effect */
-  .glow-gold {
-    box-shadow: 0 0 30px hsl(var(--gold) / 0.4);
+  /* Gradient rose button */
+  .bg-gradient-rose {
+    @apply bg-primary;
   }
 }
 
 @layer utilities {
-  .text-gradient-coffee {
-    background: var(--gradient-coffee);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .text-gradient-gold {
-    background: var(--gradient-gold);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .bg-gradient-coffee {
-    background: var(--gradient-coffee);
-  }
-
-  .bg-gradient-gold {
-    background: var(--gradient-gold);
-  }
-
-  .bg-gradient-warm {
-    background: var(--gradient-warm);
+  .text-gradient-rose {
+    @apply bg-gradient-to-r from-primary to-rose-400 bg-clip-text text-transparent;
   }
 
   .shadow-glow {
-    box-shadow: var(--shadow-glow);
+    box-shadow: 0 0 12px hsl(var(--primary) / 0.2);
   }
 }

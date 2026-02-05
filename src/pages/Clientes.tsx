@@ -10,8 +10,7 @@ import {
   CheckCircle,
   Clock,
   XCircle,
-  Package,
-  RotateCcw,
+  Filter,
 } from "lucide-react";
 import { AppLayout } from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
@@ -37,7 +36,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import {
@@ -48,428 +46,470 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
-
-interface ClientProcess {
-  id: string;
-  title: string;
-  isCompleted: boolean;
-}
-
-interface Client {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  productSold: string;
-  isRecurrent: boolean;
-  recurrenceValue?: number;
-  recurrenceDate?: number;
-  status: "entregue" | "andamento" | "cancelado";
-  processes: ClientProcess[];
-  createdAt: string;
-}
-
-const initialClients: Client[] = [
-  {
-    id: "1",
-    name: "Maria Silva",
-    email: "maria@email.com",
-    phone: "(11) 99999-9999",
-    productSold: "Mentoria Premium",
-    isRecurrent: true,
-    recurrenceValue: 2500,
-    recurrenceDate: 10,
-    status: "entregue",
-    processes: [
-      { id: "1", title: "Onboarding", isCompleted: true },
-      { id: "2", title: "Primeira sessão", isCompleted: true },
-    ],
-    createdAt: "2026-01-15",
-  },
-  {
-    id: "2",
-    name: "João Santos",
-    email: "joao@empresa.com",
-    phone: "(11) 98888-8888",
-    productSold: "Consultoria Empresarial",
-    isRecurrent: false,
-    status: "andamento",
-    processes: [
-      { id: "1", title: "Diagnóstico", isCompleted: true },
-      { id: "2", title: "Proposta de melhorias", isCompleted: false },
-      { id: "3", title: "Implementação", isCompleted: false },
-    ],
-    createdAt: "2026-01-20",
-  },
-  {
-    id: "3",
-    name: "Ana Oliveira",
-    email: "ana@studio.com",
-    phone: "(11) 97777-7777",
-    productSold: "Curso Online",
-    isRecurrent: true,
-    recurrenceValue: 197,
-    recurrenceDate: 5,
-    status: "entregue",
-    processes: [
-      { id: "1", title: "Acesso liberado", isCompleted: true },
-    ],
-    createdAt: "2026-02-01",
-  },
-  {
-    id: "4",
-    name: "Pedro Costa",
-    email: "pedro@tech.io",
-    phone: "(11) 96666-6666",
-    productSold: "Mentoria VIP",
-    isRecurrent: true,
-    recurrenceValue: 5000,
-    recurrenceDate: 15,
-    status: "cancelado",
-    processes: [
-      { id: "1", title: "Onboarding", isCompleted: true },
-      { id: "2", title: "Primeira sessão", isCompleted: true },
-    ],
-    createdAt: "2026-01-10",
-  },
-];
+import { useClients, useCreateClient, useUpdateClient, useDeleteClient, type Client } from "@/hooks/useClients";
+import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
+import { format } from "date-fns";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 const statusConfig = {
   entregue: {
     label: "Entregue",
     icon: CheckCircle,
-    class: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
+    class: "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400",
   },
   andamento: {
     label: "Em Andamento",
     icon: Clock,
-    class: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
+    class: "bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400",
   },
   cancelado: {
     label: "Cancelado",
     icon: XCircle,
-    class: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+    class: "bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400",
   },
 };
 
 const Clientes = () => {
-  const [clients] = useState<Client[]>(initialClients);
+  const { data: clients, isLoading } = useClients();
+  const createClient = useCreateClient();
+  const updateClient = useUpdateClient();
+  const deleteClient = useDeleteClient();
+
   const [searchQuery, setSearchQuery] = useState("");
+  const [dateFilter, setDateFilter] = useState<Date | undefined>();
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
-  const filteredClients = clients.filter(
-    (client) =>
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    product_sold: "",
+    sale_value: "",
+    is_recurrent: false,
+    recurrence_value: "",
+    recurrence_date: "",
+    status: "andamento" as Client["status"],
+  });
+
+  const filteredClients = clients?.filter((client) => {
+    const matchesSearch =
       client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      client.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      client.productSold.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+      client.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      client.product_sold?.toLowerCase().includes(searchQuery.toLowerCase());
 
-  const deliveredCount = clients.filter((c) => c.status === "entregue").length;
-  const churnRate = Math.round(
-    (clients.filter((c) => c.status === "cancelado").length / clients.length) * 100
-  );
+    if (!dateFilter) return matchesSearch;
+
+    const clientDate = new Date(client.created_at);
+    return (
+      matchesSearch &&
+      clientDate.getDate() === dateFilter.getDate() &&
+      clientDate.getMonth() === dateFilter.getMonth() &&
+      clientDate.getFullYear() === dateFilter.getFullYear()
+    );
+  });
+
+  const stats = {
+    total: clients?.length || 0,
+    delivered: clients?.filter((c) => c.status === "entregue").length || 0,
+    recurrent: clients?.filter((c) => c.is_recurrent).length || 0,
+    churn: clients?.length
+      ? Math.round((clients.filter((c) => c.status === "cancelado").length / clients.length) * 100)
+      : 0,
+  };
+
+  const handleCreateClient = async () => {
+    if (!formData.name) {
+      toast.error("Nome é obrigatório");
+      return;
+    }
+    try {
+      await createClient.mutateAsync({
+        name: formData.name,
+        email: formData.email || null,
+        phone: formData.phone || null,
+        product_sold: formData.product_sold || null,
+        sale_value: formData.sale_value ? parseFloat(formData.sale_value) : null,
+        is_recurrent: formData.is_recurrent,
+        recurrence_value: formData.recurrence_value ? parseFloat(formData.recurrence_value) : null,
+        recurrence_date: formData.recurrence_date ? parseInt(formData.recurrence_date) : null,
+        status: formData.status,
+      });
+      toast.success("Cliente criado!");
+      setIsDialogOpen(false);
+      resetForm();
+    } catch {
+      toast.error("Erro ao criar cliente");
+    }
+  };
+
+  const handleUpdateClient = async () => {
+    if (!selectedClient) return;
+    try {
+      await updateClient.mutateAsync({
+        id: selectedClient.id,
+        name: formData.name,
+        email: formData.email || null,
+        phone: formData.phone || null,
+        product_sold: formData.product_sold || null,
+        sale_value: formData.sale_value ? parseFloat(formData.sale_value) : null,
+        is_recurrent: formData.is_recurrent,
+        recurrence_value: formData.recurrence_value ? parseFloat(formData.recurrence_value) : null,
+        recurrence_date: formData.recurrence_date ? parseInt(formData.recurrence_date) : null,
+        status: formData.status,
+      });
+      toast.success("Cliente atualizado!");
+      setIsEditDialogOpen(false);
+      setSelectedClient(null);
+    } catch {
+      toast.error("Erro ao atualizar cliente");
+    }
+  };
+
+  const handleDeleteClient = async (id: string) => {
+    try {
+      await deleteClient.mutateAsync(id);
+      toast.success("Cliente excluído!");
+    } catch {
+      toast.error("Erro ao excluir cliente");
+    }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      email: "",
+      phone: "",
+      product_sold: "",
+      sale_value: "",
+      is_recurrent: false,
+      recurrence_value: "",
+      recurrence_date: "",
+      status: "andamento",
+    });
+  };
+
+  const openEditDialog = (client: Client) => {
+    setSelectedClient(client);
+    setFormData({
+      name: client.name,
+      email: client.email || "",
+      phone: client.phone || "",
+      product_sold: client.product_sold || "",
+      sale_value: client.sale_value?.toString() || "",
+      is_recurrent: client.is_recurrent || false,
+      recurrence_value: client.recurrence_value?.toString() || "",
+      recurrence_date: client.recurrence_date?.toString() || "",
+      status: client.status || "andamento",
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  if (isLoading) {
+    return (
+      <AppLayout>
+        <div className="space-y-4">
+          <Skeleton className="h-6 w-40" />
+          <div className="grid gap-3 sm:grid-cols-4">
+            {[1, 2, 3, 4].map((i) => (
+              <Skeleton key={i} className="h-20" />
+            ))}
+          </div>
+          <Skeleton className="h-96" />
+        </div>
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout>
-      <div className="space-y-6">
+      <div className="space-y-4">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-2">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Clientes</h1>
-            <p className="mt-1 text-muted-foreground">
-              Gerencie sua carteira de clientes
-            </p>
+            <h1 className="text-lg font-semibold text-foreground">Clientes</h1>
+            <p className="text-xs text-muted-foreground">{clients?.length || 0} clientes cadastrados</p>
           </div>
 
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="gap-2 bg-gradient-rose hover:opacity-90">
-                <Plus size={18} />
-                Novo Cliente
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-lg">
-              <DialogHeader>
-                <DialogTitle>Adicionar Cliente</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Nome</Label>
-                    <Input id="name" placeholder="Nome do cliente" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="email" placeholder="email@exemplo.com" />
-                  </div>
-                </div>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Telefone</Label>
-                    <Input id="phone" placeholder="(00) 00000-0000" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="product">Produto Vendido</Label>
-                    <Input id="product" placeholder="Nome do produto" />
-                  </div>
-                </div>
-                <div className="flex items-center justify-between rounded-lg border border-border p-4">
-                  <div>
-                    <p className="font-medium text-foreground">Pagamento Recorrente</p>
-                    <p className="text-sm text-muted-foreground">
-                      Este cliente paga mensalmente?
-                    </p>
-                  </div>
-                  <Switch />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="status">Status do Produto</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione o status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="andamento">Em Andamento</SelectItem>
-                      <SelectItem value="entregue">Entregue</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <Button className="w-full bg-gradient-rose hover:opacity-90">
-                  Criar Cliente
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+          <Button size="sm" className="h-8 text-xs" onClick={() => setIsDialogOpen(true)}>
+            <Plus size={12} className="mr-1" />
+            Novo Cliente
+          </Button>
         </div>
 
         {/* KPI Cards */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-          >
-            <KPICard
-              title="Total de Clientes"
-              value={clients.length}
-              icon={<Package size={24} />}
-            />
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
+            <KPICard title="Total" value={stats.total} icon={<CheckCircle size={16} />} />
           </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <KPICard
-              title="Produtos Entregues"
-              value={deliveredCount}
-              subtitle="Este mês"
-              icon={<CheckCircle size={24} />}
-            />
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+            <KPICard title="Entregues" value={stats.delivered} icon={<CheckCircle size={16} />} />
           </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <KPICard
-              title="Recorrentes"
-              value={clients.filter((c) => c.isRecurrent).length}
-              icon={<RotateCcw size={24} />}
-            />
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+            <KPICard title="Recorrentes" value={stats.recurrent} icon={<Clock size={16} />} />
           </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-          >
-            <KPICard
-              title="Taxa de Churn"
-              value={`${churnRate}%`}
-              icon={<XCircle size={24} />}
-              trend={churnRate > 10 ? { value: churnRate, isPositive: false } : undefined}
-            />
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+            <KPICard title="Churn" value={`${stats.churn}%`} icon={<XCircle size={16} />} />
           </motion.div>
         </div>
 
         {/* Search & Table */}
         <div className="card-elevated overflow-hidden">
           {/* Search */}
-          <div className="border-b border-border p-4">
-            <div className="relative max-w-sm">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <div className="border-b border-border p-3 flex gap-2 flex-wrap">
+            <div className="relative flex-1 min-w-[200px]">
+              <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
               <Input
                 type="text"
                 placeholder="Buscar clientes..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
+                className="pl-8 h-8 text-sm"
               />
             </div>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm" className="h-8 text-xs">
+                  <Filter size={12} className="mr-1" />
+                  {dateFilter ? format(dateFilter, "dd/MM") : "Data"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="end">
+                <Calendar mode="single" selected={dateFilter} onSelect={setDateFilter} initialFocus />
+                {dateFilter && (
+                  <div className="p-2 border-t">
+                    <Button variant="ghost" size="sm" className="w-full text-xs" onClick={() => setDateFilter(undefined)}>
+                      Limpar
+                    </Button>
+                  </div>
+                )}
+              </PopoverContent>
+            </Popover>
           </div>
 
           {/* Table */}
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Cliente</TableHead>
-                <TableHead>Produto</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Recorrência</TableHead>
-                <TableHead>Processos</TableHead>
-                <TableHead className="w-12"></TableHead>
+                <TableHead className="text-xs">Cliente</TableHead>
+                <TableHead className="text-xs">Produto</TableHead>
+                <TableHead className="text-xs">Status</TableHead>
+                <TableHead className="text-xs">Recorrência</TableHead>
+                <TableHead className="text-xs">Data</TableHead>
+                <TableHead className="w-10"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredClients.map((client) => {
-                const StatusIcon = statusConfig[client.status].icon;
-                const completedProcesses = client.processes.filter(
-                  (p) => p.isCompleted
-                ).length;
-
-                return (
-                  <TableRow key={client.id}>
-                    <TableCell>
-                      <div>
-                        <p className="font-medium text-foreground">{client.name}</p>
-                        <p className="text-sm text-muted-foreground">{client.email}</p>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-foreground">{client.productSold}</span>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={cn("gap-1", statusConfig[client.status].class)}>
-                        <StatusIcon size={12} />
-                        {statusConfig[client.status].label}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {client.isRecurrent ? (
+              {filteredClients?.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-8 text-sm text-muted-foreground">
+                    Nenhum cliente encontrado
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredClients?.map((client) => {
+                  const StatusIcon = statusConfig[client.status || "andamento"].icon;
+                  return (
+                    <TableRow key={client.id}>
+                      <TableCell>
                         <div>
-                          <p className="font-medium text-foreground">
-                            R$ {client.recurrenceValue?.toLocaleString("pt-BR")}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            Todo dia {client.recurrenceDate}
-                          </p>
+                          <p className="text-sm font-medium text-foreground">{client.name}</p>
+                          <p className="text-xs text-muted-foreground">{client.email}</p>
                         </div>
-                      ) : (
-                        <span className="text-muted-foreground">Pagamento único</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
-                          <div
-                            className="h-full bg-primary transition-all"
-                            style={{
-                              width: `${(completedProcesses / client.processes.length) * 100}%`,
-                            }}
-                          />
-                        </div>
-                        <span className="text-xs text-muted-foreground">
-                          {completedProcesses}/{client.processes.length}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <button className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground">
-                            <MoreVertical size={16} />
-                          </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => setSelectedClient(client)}>
-                            <Eye className="mr-2 h-4 w-4" />
-                            Ver Detalhes
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <Edit2 className="mr-2 h-4 w-4" />
-                            Editar
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="text-destructive">
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Excluir
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
+                      </TableCell>
+                      <TableCell className="text-sm text-foreground">{client.product_sold || "-"}</TableCell>
+                      <TableCell>
+                        <Badge className={cn("gap-1 text-[10px]", statusConfig[client.status || "andamento"].class)}>
+                          <StatusIcon size={10} />
+                          {statusConfig[client.status || "andamento"].label}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {client.is_recurrent ? (
+                          <div>
+                            <p className="text-sm font-medium text-foreground">
+                              R$ {client.recurrence_value?.toLocaleString("pt-BR")}
+                            </p>
+                            <p className="text-[10px] text-muted-foreground">Dia {client.recurrence_date}</p>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">Único</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground">
+                        {format(new Date(client.created_at), "dd/MM/yy")}
+                      </TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <button className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground">
+                              <MoreVertical size={14} />
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => openEditDialog(client)}>
+                              <Edit2 className="mr-2 h-3.5 w-3.5" />
+                              Editar
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="text-destructive" onClick={() => handleDeleteClient(client.id)}>
+                              <Trash2 className="mr-2 h-3.5 w-3.5" />
+                              Excluir
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
+              )}
             </TableBody>
           </Table>
         </div>
 
-        {/* Client Detail Dialog */}
-        <Dialog open={!!selectedClient} onOpenChange={() => setSelectedClient(null)}>
+        {/* Create Client Dialog */}
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogContent className="sm:max-w-lg">
             <DialogHeader>
-              <DialogTitle>{selectedClient?.name}</DialogTitle>
+              <DialogTitle className="text-base">Novo Cliente</DialogTitle>
             </DialogHeader>
-            {selectedClient && (
-              <div className="space-y-6 py-4">
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Email</p>
-                    <p className="font-medium text-foreground">{selectedClient.email}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Telefone</p>
-                    <p className="font-medium text-foreground">{selectedClient.phone}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Produto</p>
-                    <p className="font-medium text-foreground">
-                      {selectedClient.productSold}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Status</p>
-                    <Badge
-                      className={cn("mt-1", statusConfig[selectedClient.status].class)}
-                    >
-                      {statusConfig[selectedClient.status].label}
-                    </Badge>
-                  </div>
+            <div className="space-y-3 py-3">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Nome *</Label>
+                  <Input className="h-9 text-sm" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
                 </div>
-
-                <div>
-                  <h4 className="mb-3 font-semibold text-foreground">
-                    Processos / Checklist
-                  </h4>
-                  <div className="space-y-2">
-                    {selectedClient.processes.map((process) => (
-                      <div
-                        key={process.id}
-                        className="flex items-center gap-3 rounded-lg border border-border p-3"
-                      >
-                        <Checkbox checked={process.isCompleted} />
-                        <span
-                          className={cn(
-                            "text-sm",
-                            process.isCompleted
-                              ? "text-muted-foreground line-through"
-                              : "text-foreground"
-                          )}
-                        >
-                          {process.title}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                  <Button variant="outline" size="sm" className="mt-3 gap-2">
-                    <Plus size={14} />
-                    Adicionar Processo
-                  </Button>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Email</Label>
+                  <Input type="email" className="h-9 text-sm" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
                 </div>
               </div>
-            )}
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Telefone</Label>
+                  <Input className="h-9 text-sm" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Produto Vendido</Label>
+                  <Input className="h-9 text-sm" value={formData.product_sold} onChange={(e) => setFormData({ ...formData, product_sold: e.target.value })} />
+                </div>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Valor da Venda</Label>
+                  <Input type="number" className="h-9 text-sm" value={formData.sale_value} onChange={(e) => setFormData({ ...formData, sale_value: e.target.value })} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Status</Label>
+                  <Select value={formData.status || "andamento"} onValueChange={(v) => setFormData({ ...formData, status: v as Client["status"] })}>
+                    <SelectTrigger className="h-9 text-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="andamento">Em Andamento</SelectItem>
+                      <SelectItem value="entregue">Entregue</SelectItem>
+                      <SelectItem value="cancelado">Cancelado</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="flex items-center justify-between rounded-md border border-border p-3">
+                <div>
+                  <p className="text-sm font-medium text-foreground">Pagamento Recorrente</p>
+                  <p className="text-xs text-muted-foreground">Cliente paga mensalmente?</p>
+                </div>
+                <Switch checked={formData.is_recurrent} onCheckedChange={(v) => setFormData({ ...formData, is_recurrent: v })} />
+              </div>
+              {formData.is_recurrent && (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Valor Mensal</Label>
+                    <Input type="number" className="h-9 text-sm" value={formData.recurrence_value} onChange={(e) => setFormData({ ...formData, recurrence_value: e.target.value })} />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Dia do Pagamento</Label>
+                    <Input type="number" min="1" max="31" className="h-9 text-sm" value={formData.recurrence_date} onChange={(e) => setFormData({ ...formData, recurrence_date: e.target.value })} />
+                  </div>
+                </div>
+              )}
+              <Button className="w-full h-9 text-sm" onClick={handleCreateClient} disabled={createClient.isPending}>
+                {createClient.isPending ? "Criando..." : "Criar Cliente"}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit Client Dialog */}
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent className="sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle className="text-base">Editar Cliente</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3 py-3">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Nome *</Label>
+                  <Input className="h-9 text-sm" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Email</Label>
+                  <Input type="email" className="h-9 text-sm" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
+                </div>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Telefone</Label>
+                  <Input className="h-9 text-sm" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Produto Vendido</Label>
+                  <Input className="h-9 text-sm" value={formData.product_sold} onChange={(e) => setFormData({ ...formData, product_sold: e.target.value })} />
+                </div>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Valor da Venda</Label>
+                  <Input type="number" className="h-9 text-sm" value={formData.sale_value} onChange={(e) => setFormData({ ...formData, sale_value: e.target.value })} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Status</Label>
+                  <Select value={formData.status || "andamento"} onValueChange={(v) => setFormData({ ...formData, status: v as Client["status"] })}>
+                    <SelectTrigger className="h-9 text-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="andamento">Em Andamento</SelectItem>
+                      <SelectItem value="entregue">Entregue</SelectItem>
+                      <SelectItem value="cancelado">Cancelado</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="flex items-center justify-between rounded-md border border-border p-3">
+                <div>
+                  <p className="text-sm font-medium text-foreground">Pagamento Recorrente</p>
+                </div>
+                <Switch checked={formData.is_recurrent} onCheckedChange={(v) => setFormData({ ...formData, is_recurrent: v })} />
+              </div>
+              {formData.is_recurrent && (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Valor Mensal</Label>
+                    <Input type="number" className="h-9 text-sm" value={formData.recurrence_value} onChange={(e) => setFormData({ ...formData, recurrence_value: e.target.value })} />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Dia do Pagamento</Label>
+                    <Input type="number" min="1" max="31" className="h-9 text-sm" value={formData.recurrence_date} onChange={(e) => setFormData({ ...formData, recurrence_date: e.target.value })} />
+                  </div>
+                </div>
+              )}
+              <Button className="w-full h-9 text-sm" onClick={handleUpdateClient} disabled={updateClient.isPending}>
+                {updateClient.isPending ? "Salvando..." : "Salvar Alterações"}
+              </Button>
+            </div>
           </DialogContent>
         </Dialog>
       </div>
