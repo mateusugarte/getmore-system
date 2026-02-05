@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { SubscriptionGuard } from "@/components/SubscriptionGuard";
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
@@ -26,12 +27,12 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/auth" element={<Auth />} />
-            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-            <Route path="/pipeline" element={<ProtectedRoute><Pipeline /></ProtectedRoute>} />
-            <Route path="/metas" element={<ProtectedRoute><Metas /></ProtectedRoute>} />
-            <Route path="/clientes" element={<ProtectedRoute><Clientes /></ProtectedRoute>} />
-            <Route path="/cobrancas" element={<ProtectedRoute><Cobrancas /></ProtectedRoute>} />
             <Route path="/assinatura" element={<ProtectedRoute><Assinatura /></ProtectedRoute>} />
+            <Route path="/dashboard" element={<ProtectedRoute><SubscriptionGuard><Dashboard /></SubscriptionGuard></ProtectedRoute>} />
+            <Route path="/pipeline" element={<ProtectedRoute><SubscriptionGuard><Pipeline /></SubscriptionGuard></ProtectedRoute>} />
+            <Route path="/metas" element={<ProtectedRoute><SubscriptionGuard><Metas /></SubscriptionGuard></ProtectedRoute>} />
+            <Route path="/clientes" element={<ProtectedRoute><SubscriptionGuard><Clientes /></SubscriptionGuard></ProtectedRoute>} />
+            <Route path="/cobrancas" element={<ProtectedRoute><SubscriptionGuard><Cobrancas /></SubscriptionGuard></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
