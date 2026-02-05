@@ -1,114 +1,60 @@
 
-# Plano: Controle de Acesso por Assinatura
+# Correção: Aceitar Assinaturas em Trial
 
-## Visão Geral
-Implementar verificação de assinatura ativa para acesso ao sistema. Usuários sem assinatura serão redirecionados automaticamente para a página de assinatura.
+## Problema Identificado
+A edge function `check-subscription` busca apenas assinaturas com status `"active"`, mas sua assinatura está com status `"trialing"` (período de teste). Isso bloqueia o acesso mesmo com uma assinatura válida.
 
----
-
-## Como Vai Funcionar
-
-```text
-┌─────────────────────────────────────────────────────────────┐
-│                    Fluxo de Acesso                          │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│   Usuário acessa qualquer página                            │
-│              │                                              │
-│              ▼                                              │
-│   ┌──────────────────┐                                      │
-│   │ Está autenticado? │                                     │
-│   └────────┬─────────┘                                      │
-│       Não  │  Sim                                           │
-│       ▼    │                                                │
-│   /auth    ▼                                                │
-│   ┌───────────────────┐                                     │
-│   │ Tem assinatura?   │                                     │
-│   └────────┬──────────┘                                     │
-│       Não  │  Sim                                           │
-│       ▼    │                                                │
-│  /assinatura  ▼                                             │
-│            ┌─────────────────┐                              │
-│            │ Acessa a página │                              │
-│            └─────────────────┘                              │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
-```
-
-**Regras:**
-- Página `/auth` - Sempre acessível (login/cadastro)
-- Página `/assinatura` - Acessível para usuários logados (com ou sem assinatura)
-- Demais páginas - Requer login E assinatura ativa
+## Solução
+Modificar a edge function para aceitar tanto assinaturas **ativas** quanto **em trial**.
 
 ---
 
-## Etapas de Implementação
+## O que será alterado
 
-### 1. Criar Componente `SubscriptionGuard`
-Novo componente que verifica se o usuário tem assinatura ativa antes de renderizar o conteúdo.
+### 1. Atualizar `supabase/functions/check-subscription/index.ts`
 
-**Localização:** `src/components/SubscriptionGuard.tsx`
-
-**Comportamento:**
-- Mostra loader enquanto verifica assinatura
-- Redireciona para `/assinatura` se não tiver assinatura
-- Renderiza o conteúdo se tiver assinatura
-
-### 2. Atualizar Rotas em `App.tsx`
-Aplicar o `SubscriptionGuard` nas rotas protegidas, exceto na página de assinatura.
-
-**Mudanças:**
-- Dashboard, Pipeline, Metas, Clientes, Cobranças → `ProtectedRoute` + `SubscriptionGuard`
-- Assinatura → Apenas `ProtectedRoute` (sem verificação de assinatura)
-
-### 3. Mover SubscriptionProvider para Dentro do Contexto de Auth
-Garantir que o provider de assinatura seja carregado após a autenticação estar disponível.
-
----
-
-## Detalhes Técnicos
-
-### Componente SubscriptionGuard
+**Antes:**
 ```typescript
-// Recebe children e verifica subscription
-// Se isLoading -> mostra GlobalLoader
-// Se !subscribed -> Navigate para /assinatura
-// Se subscribed -> renderiza children
+const subscriptions = await stripe.subscriptions.list({
+  customer: customerId,
+  status: "active",
+  limit: 1,
+});
 ```
 
-### Estrutura das Rotas
+**Depois:**
 ```typescript
-// Página de assinatura - só precisa estar logado
-<Route path="/assinatura" element={
-  <ProtectedRoute>
-    <Assinatura />
-  </ProtectedRoute>
-} />
+// Buscar assinaturas ativas OU em trial
+const subscriptions = await stripe.subscriptions.list({
+  customer: customerId,
+  limit: 10,
+});
 
-// Demais páginas - precisa estar logado E ter assinatura
-<Route path="/dashboard" element={
-  <ProtectedRoute>
-    <SubscriptionGuard>
-      <Dashboard />
-    </SubscriptionGuard>
-  </ProtectedRoute>
-} />
+// Filtrar para aceitar 'active' e 'trialing'
+const validSubscription = subscriptions.data.find(
+  sub => sub.status === "active" || sub.status === "trialing"
+);
 ```
 
 ---
 
-## Arquivos que Serão Modificados
+## Lógica Atualizada
+
+A função passará a:
+1. Buscar todas as assinaturas do cliente (sem filtro de status)
+2. Verificar se existe alguma com status `active` OU `trialing`
+3. Retornar `subscribed: true` se encontrar uma válida
+
+---
+
+## Arquivos Modificados
 
 | Arquivo | Ação |
 |---------|------|
-| `src/components/SubscriptionGuard.tsx` | Criar (novo) |
-| `src/App.tsx` | Editar rotas |
+| `supabase/functions/check-subscription/index.ts` | Editar |
 
 ---
 
-## Experiência do Usuário
+## Resultado Esperado
 
-1. **Novo usuário se cadastra** → Redirecionado para `/assinatura`
-2. **Usuário assina** → Atualiza status via refresh e ganha acesso
-3. **Usuário tenta acessar dashboard sem assinatura** → Redirecionado para `/assinatura`
-4. **Usuário com assinatura ativa** → Acesso normal a todas as páginas
+Após a correção, usuários com assinaturas em período de trial terão acesso normal ao sistema, assim como usuários com assinaturas ativas.
