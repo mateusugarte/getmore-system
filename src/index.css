@@ -2,95 +2,123 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* GestãoPro Design System - Sophisticated Rose & Cream */
+    --background: 40 33% 96%;
+    --foreground: 0 0% 15%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 40 33% 98%;
+    --card-foreground: 0 0% 15%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 40 33% 98%;
+    --popover-foreground: 0 0% 15%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 340 35% 46%;
+    --primary-foreground: 40 33% 98%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 30 20% 90%;
+    --secondary-foreground: 340 35% 40%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 35 25% 92%;
+    --muted-foreground: 30 10% 45%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 35 40% 75%;
+    --accent-foreground: 30 30% 25%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 35 20% 88%;
+    --input: 35 20% 88%;
+    --ring: 340 35% 46%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
-    --sidebar-background: 0 0% 98%;
+    /* Custom tokens */
+    --gold: 38 70% 50%;
+    --gold-foreground: 38 70% 20%;
+    --rose-light: 340 30% 60%;
+    --rose-dark: 340 40% 35%;
+    --cream: 40 33% 96%;
+    --cream-dark: 35 25% 90%;
 
-    --sidebar-foreground: 240 5.3% 26.1%;
+    /* Gradients */
+    --gradient-rose: linear-gradient(135deg, hsl(340 35% 46%) 0%, hsl(340 40% 55%) 100%);
+    --gradient-cream: linear-gradient(180deg, hsl(40 33% 98%) 0%, hsl(40 33% 94%) 100%);
+    --gradient-gold: linear-gradient(135deg, hsl(38 70% 50%) 0%, hsl(30 60% 45%) 100%);
 
-    --sidebar-primary: 240 5.9% 10%;
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 hsl(340 35% 46% / 0.05);
+    --shadow-md: 0 4px 6px -1px hsl(340 35% 46% / 0.08), 0 2px 4px -2px hsl(340 35% 46% / 0.06);
+    --shadow-lg: 0 10px 15px -3px hsl(340 35% 46% / 0.1), 0 4px 6px -4px hsl(340 35% 46% / 0.08);
+    --shadow-glow: 0 0 20px hsl(340 35% 46% / 0.15);
 
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Sidebar */
+    --sidebar-background: 40 33% 98%;
+    --sidebar-foreground: 0 0% 20%;
+    --sidebar-primary: 340 35% 46%;
+    --sidebar-primary-foreground: 40 33% 98%;
+    --sidebar-accent: 35 25% 92%;
+    --sidebar-accent-foreground: 340 35% 40%;
+    --sidebar-border: 35 20% 88%;
+    --sidebar-ring: 340 35% 46%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 0 0% 11%;
+    --foreground: 40 20% 92%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 0 0% 13%;
+    --card-foreground: 40 20% 92%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 0 0% 13%;
+    --popover-foreground: 40 20% 92%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 340 35% 55%;
+    --primary-foreground: 0 0% 10%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 0 0% 18%;
+    --secondary-foreground: 340 30% 70%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 0 0% 16%;
+    --muted-foreground: 30 10% 55%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 35 30% 30%;
+    --accent-foreground: 35 40% 80%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 62% 45%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 340 35% 55%;
+
+    /* Custom tokens dark */
+    --gold: 38 60% 55%;
+    --gold-foreground: 38 70% 90%;
+    --rose-light: 340 35% 65%;
+    --rose-dark: 340 40% 45%;
+    --cream: 0 0% 11%;
+    --cream-dark: 0 0% 8%;
+
+    /* Shadows dark */
+    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.2);
+    --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.25), 0 2px 4px -2px hsl(0 0% 0% / 0.2);
+    --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.3), 0 4px 6px -4px hsl(0 0% 0% / 0.25);
+    --shadow-glow: 0 0 25px hsl(340 35% 55% / 0.25);
+
+    /* Sidebar dark */
+    --sidebar-background: 0 0% 10%;
+    --sidebar-foreground: 40 20% 90%;
+    --sidebar-primary: 340 35% 55%;
+    --sidebar-primary-foreground: 0 0% 10%;
+    --sidebar-accent: 0 0% 16%;
+    --sidebar-accent-foreground: 340 30% 70%;
+    --sidebar-border: 0 0% 18%;
+    --sidebar-ring: 340 35% 55%;
   }
 }
 
@@ -99,7 +127,132 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+}
+
+@layer components {
+  /* Card variants */
+  .card-elevated {
+    @apply bg-card rounded-xl border border-border;
+    box-shadow: var(--shadow-md);
+  }
+
+  .card-glass {
+    @apply bg-card/80 backdrop-blur-sm rounded-xl border border-border/50;
+  }
+
+  /* Button variants */
+  .btn-primary {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200;
+  }
+
+  .btn-ghost {
+    @apply text-foreground hover:bg-muted transition-all duration-200;
+  }
+
+  .btn-gold {
+    background: var(--gradient-gold);
+    @apply text-white hover:opacity-90 transition-all duration-200;
+  }
+
+  /* Status badges */
+  .badge-contato {
+    @apply bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300;
+  }
+
+  .badge-aquecendo {
+    @apply bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300;
+  }
+
+  .badge-proposta {
+    @apply bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300;
+  }
+
+  .badge-concluida {
+    @apply bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300;
+  }
+
+  /* Source badges */
+  .source-instagram {
+    @apply bg-gradient-to-r from-pink-500 to-purple-500 text-white;
+  }
+
+  .source-trafego {
+    @apply bg-gradient-to-r from-blue-500 to-cyan-500 text-white;
+  }
+
+  .source-indicacao {
+    @apply bg-gradient-to-r from-emerald-500 to-teal-500 text-white;
+  }
+
+  .source-prospeccao {
+    @apply bg-gradient-to-r from-orange-500 to-amber-500 text-white;
+  }
+
+  /* Kanban column */
+  .kanban-column {
+    @apply bg-muted/50 rounded-xl p-4 min-h-[500px];
+  }
+
+  /* Animated elements */
+  .animate-pulse-soft {
+    animation: pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes pulse-soft {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.7;
+    }
+  }
+
+  .animate-spin-slow {
+    animation: spin 3s linear infinite;
+  }
+
+  /* Progress ring */
+  .progress-ring {
+    transform: rotate(-90deg);
+  }
+
+  .progress-ring-circle {
+    transition: stroke-dashoffset 0.5s ease-out;
+  }
+}
+
+@layer utilities {
+  .text-gradient-rose {
+    background: var(--gradient-rose);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-gold {
+    background: var(--gradient-gold);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .bg-gradient-rose {
+    background: var(--gradient-rose);
+  }
+
+  .bg-gradient-cream {
+    background: var(--gradient-cream);
+  }
+
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
   }
 }
