@@ -47,16 +47,23 @@ export const AppSidebar = ({ isDarkMode, onToggleTheme }: AppSidebarProps) => {
       className="relative flex h-screen flex-col border-r border-sidebar-border bg-sidebar"
     >
       {/* Logo */}
-      <div className="flex h-16 items-center justify-between px-4">
+      <div className="flex h-20 items-center justify-between px-4">
         <motion.div
           animate={{ opacity: collapsed ? 0 : 1 }}
           className="flex items-center gap-3"
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-rose shadow-glow">
-            <span className="text-lg font-bold text-primary-foreground">G</span>
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl overflow-hidden">
+            <img 
+              src="/logo.png" 
+              alt="GetMore System" 
+              className="h-12 w-12 object-contain"
+            />
           </div>
           {!collapsed && (
-            <span className="text-xl font-semibold text-gradient-rose">GestãoPro</span>
+            <div className="flex flex-col">
+              <span className="text-lg font-bold text-foreground">GetMore</span>
+              <span className="text-xs font-medium text-gold">System</span>
+            </div>
           )}
         </motion.div>
         
@@ -99,7 +106,7 @@ export const AppSidebar = ({ isDarkMode, onToggleTheme }: AppSidebarProps) => {
             "text-sidebar-foreground hover:bg-sidebar-accent"
           )}
         >
-          {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+          {isDarkMode ? <Sun size={20} className="text-gold" /> : <Moon size={20} />}
           {!collapsed && <span>{isDarkMode ? "Modo Claro" : "Modo Escuro"}</span>}
         </button>
       </div>
@@ -114,9 +121,9 @@ export const AppSidebar = ({ isDarkMode, onToggleTheme }: AppSidebarProps) => {
                 collapsed && "justify-center"
               )}
             >
-              <Avatar className="h-9 w-9 border-2 border-primary/20">
+              <Avatar className="h-9 w-9 border-2 border-gold/30">
                 <AvatarImage src="" />
-                <AvatarFallback className="bg-primary/10 text-primary">
+                <AvatarFallback className="bg-gold/10 text-gold font-semibold">
                   U
                 </AvatarFallback>
               </Avatar>

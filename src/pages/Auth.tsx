@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,11 +9,12 @@ import { Label } from "@/components/ui/label";
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen flex">
       {/* Left Side - Form */}
-      <div className="flex-1 flex items-center justify-center p-8 lg:p-12">
+      <div className="flex-1 flex items-center justify-center p-8 lg:p-12 bg-background">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -21,11 +22,16 @@ const Auth = () => {
           className="w-full max-w-md"
         >
           {/* Logo */}
-          <div className="mb-8 flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-rose shadow-glow">
-              <span className="text-xl font-bold text-primary-foreground">G</span>
+          <div className="mb-10 flex items-center gap-4">
+            <img 
+              src="/logo.png" 
+              alt="GetMore System" 
+              className="h-14 w-14 object-contain"
+            />
+            <div className="flex flex-col">
+              <span className="text-2xl font-bold text-foreground">GetMore</span>
+              <span className="text-sm font-semibold text-gold">System</span>
             </div>
-            <span className="text-2xl font-semibold text-gradient-rose">GestãoPro</span>
           </div>
 
           {/* Header */}
@@ -48,7 +54,7 @@ const Auth = () => {
                 <Input
                   id="name"
                   placeholder="Seu nome completo"
-                  className="h-12"
+                  className="h-12 border-border focus:border-gold focus:ring-gold"
                 />
               </div>
             )}
@@ -59,7 +65,7 @@ const Auth = () => {
                 id="email"
                 type="email"
                 placeholder="seu@email.com"
-                className="h-12"
+                className="h-12 border-border focus:border-gold focus:ring-gold"
               />
             </div>
 
@@ -70,7 +76,7 @@ const Auth = () => {
                   id="phone"
                   type="tel"
                   placeholder="(00) 00000-0000"
-                  className="h-12"
+                  className="h-12 border-border focus:border-gold focus:ring-gold"
                 />
               </div>
             )}
@@ -82,7 +88,7 @@ const Auth = () => {
                   id="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
-                  className="h-12 pr-12"
+                  className="h-12 pr-12 border-border focus:border-gold focus:ring-gold"
                 />
                 <button
                   type="button"
@@ -94,15 +100,14 @@ const Auth = () => {
               </div>
             </div>
 
-            <Link to="/dashboard">
-              <Button
-                type="submit"
-                className="h-12 w-full gap-2 bg-gradient-rose text-lg font-medium hover:opacity-90"
-              >
-                {isLogin ? "Entrar" : "Criar Conta"}
-                <ArrowRight size={18} />
-              </Button>
-            </Link>
+            <Button
+              type="button"
+              onClick={() => navigate('/dashboard')}
+              className="h-12 w-full gap-2 bg-primary text-primary-foreground text-lg font-medium hover:bg-primary/90 dark:bg-gold dark:text-gold-foreground dark:hover:bg-gold/90"
+            >
+              {isLogin ? "Entrar" : "Criar Conta"}
+              <ArrowRight size={18} />
+            </Button>
           </form>
 
           {/* Toggle */}
@@ -110,7 +115,7 @@ const Auth = () => {
             {isLogin ? "Não tem uma conta?" : "Já tem uma conta?"}{" "}
             <button
               onClick={() => setIsLogin(!isLogin)}
-              className="font-medium text-primary hover:underline"
+              className="font-medium text-gold hover:underline"
             >
               {isLogin ? "Criar conta" : "Fazer login"}
             </button>
@@ -119,11 +124,16 @@ const Auth = () => {
       </div>
 
       {/* Right Side - Visual */}
-      <div className="hidden lg:flex flex-1 items-center justify-center bg-gradient-rose p-12 relative overflow-hidden">
+      <div className="hidden lg:flex flex-1 items-center justify-center bg-gradient-coffee p-12 relative overflow-hidden">
         {/* Decorative elements */}
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-20 left-20 w-64 h-64 rounded-full bg-white/20 blur-3xl" />
-          <div className="absolute bottom-20 right-20 w-80 h-80 rounded-full bg-white/10 blur-3xl" />
+        <div className="absolute inset-0">
+          <div className="absolute top-20 left-20 w-72 h-72 rounded-full bg-gold/10 blur-3xl" />
+          <div className="absolute bottom-20 right-20 w-96 h-96 rounded-full bg-gold/5 blur-3xl" />
+        </div>
+
+        {/* Logo watermark */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-10">
+          <img src="/logo.png" alt="" className="w-[60%] h-auto" />
         </div>
 
         <motion.div
@@ -132,12 +142,28 @@ const Auth = () => {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="relative z-10 max-w-lg text-center"
         >
-          <h2 className="text-4xl font-bold text-primary-foreground">
+          {/* Featured Logo */}
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="mb-8 flex justify-center"
+          >
+            <div className="p-6 rounded-3xl bg-background/10 backdrop-blur-sm border border-gold/20">
+              <img 
+                src="/logo.png" 
+                alt="GetMore System" 
+                className="h-24 w-24 object-contain"
+              />
+            </div>
+          </motion.div>
+
+          <h2 className="text-4xl font-bold text-cream">
             Tenha clareza na sua gestão
           </h2>
-          <p className="mt-4 text-lg text-primary-foreground/80">
+          <p className="mt-4 text-lg text-cream/70">
             Organize seus leads, acompanhe metas e transforme contatos em clientes
-            fiéis com o GestãoPro.
+            fiéis com o GetMore System.
           </p>
 
           <div className="mt-12 grid grid-cols-3 gap-6">
@@ -151,10 +177,10 @@ const Auth = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.4 + index * 0.1 }}
-                className="rounded-xl bg-white/10 backdrop-blur-sm p-4"
+                className="rounded-xl bg-background/10 backdrop-blur-sm border border-gold/20 p-4"
               >
-                <p className="text-2xl font-bold text-primary-foreground">{stat.value}</p>
-                <p className="text-sm text-primary-foreground/70">{stat.label}</p>
+                <p className="text-2xl font-bold text-gold">{stat.value}</p>
+                <p className="text-sm text-cream/60">{stat.label}</p>
               </motion.div>
             ))}
           </div>

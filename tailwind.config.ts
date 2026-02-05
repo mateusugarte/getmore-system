@@ -54,14 +54,12 @@ export default {
           DEFAULT: "hsl(var(--gold))",
           foreground: "hsl(var(--gold-foreground))",
         },
-        rose: {
-          light: "hsl(var(--rose-light))",
-          dark: "hsl(var(--rose-dark))",
+        coffee: {
+          DEFAULT: "hsl(var(--coffee))",
+          light: "hsl(var(--coffee-light))",
         },
-        cream: {
-          DEFAULT: "hsl(var(--cream))",
-          dark: "hsl(var(--cream-dark))",
-        },
+        cream: "hsl(var(--cream))",
+        ocre: "hsl(var(--ocre))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
@@ -103,10 +101,13 @@ export default {
           "0%": { transform: "translateX(100%)" },
           "100%": { transform: "translateX(0)" },
         },
-        "pulse-ring": {
-          "0%": { transform: "scale(0.8)", opacity: "1" },
-          "50%": { transform: "scale(1)", opacity: "0.5" },
-          "100%": { transform: "scale(0.8)", opacity: "1" },
+        "pulse-logo": {
+          "0%, 100%": { transform: "scale(1)", opacity: "1" },
+          "50%": { transform: "scale(1.08)", opacity: "0.9" },
+        },
+        "spin-gold": {
+          "0%": { transform: "rotate(0deg)" },
+          "100%": { transform: "rotate(360deg)" },
         },
       },
       animation: {
@@ -116,7 +117,8 @@ export default {
         "fade-out": "fade-out 0.3s ease-out",
         "scale-in": "scale-in 0.3s ease-out",
         "slide-in-right": "slide-in-right 0.4s ease-out",
-        "pulse-ring": "pulse-ring 2s ease-in-out infinite",
+        "pulse-logo": "pulse-logo 2s ease-in-out infinite",
+        "spin-gold": "spin-gold 2s linear infinite",
       },
     },
   },

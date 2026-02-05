@@ -31,7 +31,7 @@ const leadsData = [
 
 const pipelineData = [
   { name: "Contato Feito", value: 12, color: "#3B82F6" },
-  { name: "Aquecendo", value: 8, color: "#F59E0B" },
+  { name: "Aquecendo", value: 8, color: "#E1AD01" },
   { name: "Proposta", value: 5, color: "#8B5CF6" },
   { name: "Vendido", value: 3, color: "#10B981" },
 ];

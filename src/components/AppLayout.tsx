@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { AppSidebar } from "./AppSidebar";
 import { GlobalSearch } from "./GlobalSearch";
 import { GlobalLoader } from "./GlobalLoader";
+import { LogoWatermark } from "./LogoWatermark";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -21,7 +22,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
     }
     
     // Simulate initial load
-    const timer = setTimeout(() => setIsLoading(false), 1500);
+    const timer = setTimeout(() => setIsLoading(false), 1800);
     return () => clearTimeout(timer);
   }, []);
 
@@ -39,7 +40,10 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       <div className="flex min-h-screen w-full bg-background">
         <AppSidebar isDarkMode={isDarkMode} onToggleTheme={toggleTheme} />
         
-        <div className="flex flex-1 flex-col">
+        <div className="flex flex-1 flex-col relative">
+          {/* Watermark */}
+          <LogoWatermark />
+
           {/* Header */}
           <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-border bg-background/95 px-6 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <GlobalSearch />
@@ -56,7 +60,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
           </header>
 
           {/* Main Content */}
-          <main className="flex-1 overflow-auto">
+          <main className="flex-1 overflow-auto relative z-10">
             <AnimatePresence mode="wait">
               <motion.div
                 key={location.pathname}
