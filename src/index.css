@@ -6,119 +6,120 @@
 
 @layer base {
   :root {
-    /* GestãoPro Design System - Sophisticated Rose & Cream */
-    --background: 40 33% 96%;
-    --foreground: 0 0% 15%;
+    /* GetMore System - Coffee & Gold Theme - Light Mode */
+    --background: 0 0% 100%;
+    --foreground: 20 30% 12%;
 
-    --card: 40 33% 98%;
-    --card-foreground: 0 0% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 20 30% 12%;
 
-    --popover: 40 33% 98%;
-    --popover-foreground: 0 0% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 20 30% 12%;
 
-    --primary: 340 35% 46%;
-    --primary-foreground: 40 33% 98%;
+    --primary: 20 35% 15%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 30 20% 90%;
-    --secondary-foreground: 340 35% 40%;
+    --secondary: 30 15% 95%;
+    --secondary-foreground: 20 30% 15%;
 
-    --muted: 35 25% 92%;
-    --muted-foreground: 30 10% 45%;
+    --muted: 30 10% 96%;
+    --muted-foreground: 20 10% 45%;
 
-    --accent: 35 40% 75%;
-    --accent-foreground: 30 30% 25%;
+    --accent: 40 80% 50%;
+    --accent-foreground: 20 35% 12%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 35 20% 88%;
-    --input: 35 20% 88%;
-    --ring: 340 35% 46%;
+    --border: 30 15% 90%;
+    --input: 30 15% 90%;
+    --ring: 20 35% 15%;
 
     --radius: 0.75rem;
 
-    /* Custom tokens */
-    --gold: 38 70% 50%;
-    --gold-foreground: 38 70% 20%;
-    --rose-light: 340 30% 60%;
-    --rose-dark: 340 40% 35%;
-    --cream: 40 33% 96%;
-    --cream-dark: 35 25% 90%;
+    /* Custom tokens - Light */
+    --gold: 45 90% 50%;
+    --gold-foreground: 20 35% 12%;
+    --coffee: 20 35% 15%;
+    --coffee-light: 25 20% 25%;
+    --cream: 40 30% 97%;
+    --ocre: 35 70% 45%;
 
     /* Gradients */
-    --gradient-rose: linear-gradient(135deg, hsl(340 35% 46%) 0%, hsl(340 40% 55%) 100%);
-    --gradient-cream: linear-gradient(180deg, hsl(40 33% 98%) 0%, hsl(40 33% 94%) 100%);
-    --gradient-gold: linear-gradient(135deg, hsl(38 70% 50%) 0%, hsl(30 60% 45%) 100%);
+    --gradient-coffee: linear-gradient(135deg, hsl(20 35% 15%) 0%, hsl(25 30% 22%) 100%);
+    --gradient-gold: linear-gradient(135deg, hsl(45 90% 50%) 0%, hsl(38 85% 45%) 100%);
+    --gradient-warm: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(30 20% 97%) 100%);
 
     /* Shadows */
-    --shadow-sm: 0 1px 2px 0 hsl(340 35% 46% / 0.05);
-    --shadow-md: 0 4px 6px -1px hsl(340 35% 46% / 0.08), 0 2px 4px -2px hsl(340 35% 46% / 0.06);
-    --shadow-lg: 0 10px 15px -3px hsl(340 35% 46% / 0.1), 0 4px 6px -4px hsl(340 35% 46% / 0.08);
-    --shadow-glow: 0 0 20px hsl(340 35% 46% / 0.15);
+    --shadow-sm: 0 1px 2px 0 hsl(20 35% 15% / 0.04);
+    --shadow-md: 0 4px 6px -1px hsl(20 35% 15% / 0.06), 0 2px 4px -2px hsl(20 35% 15% / 0.04);
+    --shadow-lg: 0 10px 15px -3px hsl(20 35% 15% / 0.08), 0 4px 6px -4px hsl(20 35% 15% / 0.05);
+    --shadow-glow: 0 0 20px hsl(45 90% 50% / 0.15);
 
     /* Sidebar */
-    --sidebar-background: 40 33% 98%;
-    --sidebar-foreground: 0 0% 20%;
-    --sidebar-primary: 340 35% 46%;
-    --sidebar-primary-foreground: 40 33% 98%;
-    --sidebar-accent: 35 25% 92%;
-    --sidebar-accent-foreground: 340 35% 40%;
-    --sidebar-border: 35 20% 88%;
-    --sidebar-ring: 340 35% 46%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 20 30% 15%;
+    --sidebar-primary: 20 35% 15%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 30 15% 95%;
+    --sidebar-accent-foreground: 20 30% 15%;
+    --sidebar-border: 30 15% 92%;
+    --sidebar-ring: 45 90% 50%;
   }
 
   .dark {
-    --background: 0 0% 11%;
-    --foreground: 40 20% 92%;
+    /* GetMore System - Coffee & Gold Theme - Dark Mode */
+    --background: 20 30% 7%;
+    --foreground: 40 20% 96%;
 
-    --card: 0 0% 13%;
-    --card-foreground: 40 20% 92%;
+    --card: 20 25% 10%;
+    --card-foreground: 40 20% 96%;
 
-    --popover: 0 0% 13%;
-    --popover-foreground: 40 20% 92%;
+    --popover: 20 25% 10%;
+    --popover-foreground: 40 20% 96%;
 
-    --primary: 340 35% 55%;
-    --primary-foreground: 0 0% 10%;
+    --primary: 45 90% 55%;
+    --primary-foreground: 20 35% 8%;
 
-    --secondary: 0 0% 18%;
-    --secondary-foreground: 340 30% 70%;
+    --secondary: 20 20% 15%;
+    --secondary-foreground: 45 80% 60%;
 
-    --muted: 0 0% 16%;
-    --muted-foreground: 30 10% 55%;
+    --muted: 20 18% 14%;
+    --muted-foreground: 30 15% 55%;
 
-    --accent: 35 30% 30%;
-    --accent-foreground: 35 40% 80%;
+    --accent: 45 90% 55%;
+    --accent-foreground: 20 35% 8%;
 
     --destructive: 0 62% 45%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 340 35% 55%;
+    --border: 20 18% 16%;
+    --input: 20 18% 16%;
+    --ring: 45 90% 55%;
 
-    /* Custom tokens dark */
-    --gold: 38 60% 55%;
-    --gold-foreground: 38 70% 90%;
-    --rose-light: 340 35% 65%;
-    --rose-dark: 340 40% 45%;
-    --cream: 0 0% 11%;
-    --cream-dark: 0 0% 8%;
+    /* Custom tokens - Dark */
+    --gold: 45 90% 55%;
+    --gold-foreground: 20 35% 8%;
+    --coffee: 20 30% 7%;
+    --coffee-light: 20 25% 12%;
+    --cream: 40 20% 96%;
+    --ocre: 35 70% 55%;
 
     /* Shadows dark */
-    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.2);
-    --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.25), 0 2px 4px -2px hsl(0 0% 0% / 0.2);
-    --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.3), 0 4px 6px -4px hsl(0 0% 0% / 0.25);
-    --shadow-glow: 0 0 25px hsl(340 35% 55% / 0.25);
+    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.25);
+    --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.3), 0 2px 4px -2px hsl(0 0% 0% / 0.25);
+    --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.35), 0 4px 6px -4px hsl(0 0% 0% / 0.3);
+    --shadow-glow: 0 0 25px hsl(45 90% 55% / 0.25);
 
     /* Sidebar dark */
-    --sidebar-background: 0 0% 10%;
-    --sidebar-foreground: 40 20% 90%;
-    --sidebar-primary: 340 35% 55%;
-    --sidebar-primary-foreground: 0 0% 10%;
-    --sidebar-accent: 0 0% 16%;
-    --sidebar-accent-foreground: 340 30% 70%;
-    --sidebar-border: 0 0% 18%;
-    --sidebar-ring: 340 35% 55%;
+    --sidebar-background: 20 28% 9%;
+    --sidebar-foreground: 40 20% 94%;
+    --sidebar-primary: 45 90% 55%;
+    --sidebar-primary-foreground: 20 35% 8%;
+    --sidebar-accent: 20 22% 14%;
+    --sidebar-accent-foreground: 45 80% 65%;
+    --sidebar-border: 20 20% 14%;
+    --sidebar-ring: 45 90% 55%;
   }
 }
 
@@ -150,7 +151,7 @@
 
   /* Button variants */
   .btn-primary {
-    @apply bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200;
+    @apply bg-primary text-primary-foreground hover:opacity-90 transition-all duration-200;
   }
 
   .btn-ghost {
@@ -159,7 +160,7 @@
 
   .btn-gold {
     background: var(--gradient-gold);
-    @apply text-white hover:opacity-90 transition-all duration-200;
+    @apply text-primary-foreground hover:opacity-90 transition-all duration-200;
   }
 
   /* Status badges */
@@ -209,9 +210,11 @@
   @keyframes pulse-soft {
     0%, 100% {
       opacity: 1;
+      transform: scale(1);
     }
     50% {
-      opacity: 0.7;
+      opacity: 0.8;
+      transform: scale(1.05);
     }
   }
 
@@ -227,11 +230,16 @@
   .progress-ring-circle {
     transition: stroke-dashoffset 0.5s ease-out;
   }
+
+  /* Gold glow effect */
+  .glow-gold {
+    box-shadow: 0 0 30px hsl(var(--gold) / 0.4);
+  }
 }
 
 @layer utilities {
-  .text-gradient-rose {
-    background: var(--gradient-rose);
+  .text-gradient-coffee {
+    background: var(--gradient-coffee);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -244,12 +252,16 @@
     background-clip: text;
   }
 
-  .bg-gradient-rose {
-    background: var(--gradient-rose);
+  .bg-gradient-coffee {
+    background: var(--gradient-coffee);
   }
 
-  .bg-gradient-cream {
-    background: var(--gradient-cream);
+  .bg-gradient-gold {
+    background: var(--gradient-gold);
+  }
+
+  .bg-gradient-warm {
+    background: var(--gradient-warm);
   }
 
   .shadow-glow {
