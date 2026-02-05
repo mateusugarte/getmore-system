@@ -78,7 +78,10 @@ export const useAuth = () => {
         setProfile(data);
       }
     } catch (error) {
-      console.error("Error fetching profile:", error);
+      // Silent fail in production - avoid exposing error details in client console
+      if (import.meta.env.DEV) {
+        console.error("Error fetching profile:", error);
+      }
     } finally {
       setLoading(false);
     }
