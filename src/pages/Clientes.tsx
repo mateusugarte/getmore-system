@@ -6,11 +6,11 @@ import {
   MoreVertical,
   Edit2,
   Trash2,
-  Eye,
   CheckCircle,
   Clock,
   XCircle,
   Filter,
+  UserPlus,
 } from "lucide-react";
 import { AppLayout } from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
@@ -48,6 +48,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { useClients, useCreateClient, useUpdateClient, useDeleteClient, type Client } from "@/hooks/useClients";
+import { useLeads, type Lead } from "@/hooks/useLeads";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
@@ -74,6 +75,7 @@ const statusConfig = {
 
 const Clientes = () => {
   const { data: clients, isLoading } = useClients();
+  const { data: leads } = useLeads();
   const createClient = useCreateClient();
   const updateClient = useUpdateClient();
   const deleteClient = useDeleteClient();
@@ -83,6 +85,8 @@ const Clientes = () => {
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isLeadDialogOpen, setIsLeadDialogOpen] = useState(false);
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -93,8 +97,16 @@ const Clientes = () => {
     is_recurrent: false,
     recurrence_value: "",
     recurrence_date: "",
+    contract_end_date: "",
     status: "andamento" as Client["status"],
   });
+
+  // Filter leads that are not yet clients (stage = venda_concluida or any stage)
+  const availableLeads = leads?.filter(lead => {
+    // Check if lead is already a client
+    const isAlreadyClient = clients?.some(c => c.lead_id === lead.id);
+    return !isAlreadyClient;
+  }) || [];
 
   const filteredClients = clients?.filter((client) => {
     const matchesSearch =
@@ -137,14 +149,36 @@ const Clientes = () => {
         is_recurrent: formData.is_recurrent,
         recurrence_value: formData.recurrence_value ? parseFloat(formData.recurrence_value) : null,
         recurrence_date: formData.recurrence_date ? parseInt(formData.recurrence_date) : null,
+        contract_end_date: formData.contract_end_date || null,
         status: formData.status,
+        lead_id: selectedLead?.id || null,
       });
       toast.success("Cliente criado!");
       setIsDialogOpen(false);
+      setIsLeadDialogOpen(false);
+      setSelectedLead(null);
       resetForm();
     } catch {
       toast.error("Erro ao criar cliente");
     }
+  };
+
+  const handleCreateFromLead = (lead: Lead) => {
+    setSelectedLead(lead);
+    setFormData({
+      name: lead.name,
+      email: lead.email || "",
+      phone: lead.phone || "",
+      product_sold: "",
+      sale_value: lead.estimated_value?.toString() || "",
+      is_recurrent: false,
+      recurrence_value: "",
+      recurrence_date: "",
+      contract_end_date: "",
+      status: "andamento",
+    });
+    setIsLeadDialogOpen(false);
+    setIsDialogOpen(true);
   };
 
   const handleUpdateClient = async () => {
@@ -160,6 +194,7 @@ const Clientes = () => {
         is_recurrent: formData.is_recurrent,
         recurrence_value: formData.recurrence_value ? parseFloat(formData.recurrence_value) : null,
         recurrence_date: formData.recurrence_date ? parseInt(formData.recurrence_date) : null,
+        contract_end_date: formData.contract_end_date || null,
         status: formData.status,
       });
       toast.success("Cliente atualizado!");
@@ -189,8 +224,10 @@ const Clientes = () => {
       is_recurrent: false,
       recurrence_value: "",
       recurrence_date: "",
+      contract_end_date: "",
       status: "andamento",
     });
+    setSelectedLead(null);
   };
 
   const openEditDialog = (client: Client) => {
@@ -204,6 +241,7 @@ const Clientes = () => {
       is_recurrent: client.is_recurrent || false,
       recurrence_value: client.recurrence_value?.toString() || "",
       recurrence_date: client.recurrence_date?.toString() || "",
+      contract_end_date: client.contract_end_date || "",
       status: client.status || "andamento",
     });
     setIsEditDialogOpen(true);
@@ -225,6 +263,87 @@ const Clientes = () => {
     );
   }
 
+  const ClientForm = ({ isEdit = false }: { isEdit?: boolean }) => (
+    <div className="space-y-3 py-3">
+      {selectedLead && !isEdit && (
+        <div className="bg-muted/50 rounded-md p-2 text-xs text-muted-foreground">
+          Criando cliente a partir do lead: <span className="font-medium text-foreground">{selectedLead.name}</span>
+        </div>
+      )}
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className="space-y-1.5">
+          <Label className="text-xs">Nome *</Label>
+          <Input className="h-9 text-sm" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
+        </div>
+        <div className="space-y-1.5">
+          <Label className="text-xs">Email</Label>
+          <Input type="email" className="h-9 text-sm" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
+        </div>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className="space-y-1.5">
+          <Label className="text-xs">Telefone</Label>
+          <Input className="h-9 text-sm" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
+        </div>
+        <div className="space-y-1.5">
+          <Label className="text-xs">Produto Vendido</Label>
+          <Input className="h-9 text-sm" value={formData.product_sold} onChange={(e) => setFormData({ ...formData, product_sold: e.target.value })} />
+        </div>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className="space-y-1.5">
+          <Label className="text-xs">Valor da Venda</Label>
+          <Input type="number" className="h-9 text-sm" value={formData.sale_value} onChange={(e) => setFormData({ ...formData, sale_value: e.target.value })} />
+        </div>
+        <div className="space-y-1.5">
+          <Label className="text-xs">Status</Label>
+          <Select value={formData.status || "andamento"} onValueChange={(v) => setFormData({ ...formData, status: v as Client["status"] })}>
+            <SelectTrigger className="h-9 text-sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="andamento">Em Andamento</SelectItem>
+              <SelectItem value="entregue">Entregue</SelectItem>
+              <SelectItem value="cancelado">Cancelado</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      <div className="flex items-center justify-between rounded-md border border-border p-3">
+        <div>
+          <p className="text-sm font-medium text-foreground">Pagamento Recorrente</p>
+          <p className="text-xs text-muted-foreground">Cliente paga mensalmente?</p>
+        </div>
+        <Switch checked={formData.is_recurrent} onCheckedChange={(v) => setFormData({ ...formData, is_recurrent: v })} />
+      </div>
+      {formData.is_recurrent && (
+        <>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label className="text-xs">Valor Mensal</Label>
+              <Input type="number" className="h-9 text-sm" value={formData.recurrence_value} onChange={(e) => setFormData({ ...formData, recurrence_value: e.target.value })} />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Dia do Pagamento</Label>
+              <Input type="number" min="1" max="31" className="h-9 text-sm" value={formData.recurrence_date} onChange={(e) => setFormData({ ...formData, recurrence_date: e.target.value })} />
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs">Data Fim do Contrato (opcional)</Label>
+            <Input type="date" className="h-9 text-sm" value={formData.contract_end_date} onChange={(e) => setFormData({ ...formData, contract_end_date: e.target.value })} />
+            <p className="text-[10px] text-muted-foreground">Deixe vazio para contrato sem prazo definido</p>
+          </div>
+        </>
+      )}
+      <Button className="w-full h-9 text-sm" onClick={isEdit ? handleUpdateClient : handleCreateClient} disabled={isEdit ? updateClient.isPending : createClient.isPending}>
+        {isEdit 
+          ? (updateClient.isPending ? "Salvando..." : "Salvar Alterações")
+          : (createClient.isPending ? "Criando..." : "Criar Cliente")
+        }
+      </Button>
+    </div>
+  );
+
   return (
     <AppLayout>
       <div className="space-y-4">
@@ -235,10 +354,16 @@ const Clientes = () => {
             <p className="text-xs text-muted-foreground">{clients?.length || 0} clientes cadastrados</p>
           </div>
 
-          <Button size="sm" className="h-8 text-xs" onClick={() => setIsDialogOpen(true)}>
-            <Plus size={12} className="mr-1" />
-            Novo Cliente
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" className="h-8 text-xs" onClick={() => setIsLeadDialogOpen(true)}>
+              <UserPlus size={12} className="mr-1" />
+              Adicionar do Pipeline
+            </Button>
+            <Button size="sm" className="h-8 text-xs" onClick={() => { resetForm(); setIsDialogOpen(true); }}>
+              <Plus size={12} className="mr-1" />
+              Novo Cliente
+            </Button>
+          </div>
         </div>
 
         {/* KPI Cards */}
@@ -370,75 +495,51 @@ const Clientes = () => {
           </Table>
         </div>
 
-        {/* Create Client Dialog */}
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent className="sm:max-w-lg">
+        {/* Add from Pipeline Dialog */}
+        <Dialog open={isLeadDialogOpen} onOpenChange={setIsLeadDialogOpen}>
+          <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle className="text-base">Novo Cliente</DialogTitle>
+              <DialogTitle className="text-base">Adicionar do Pipeline</DialogTitle>
             </DialogHeader>
             <div className="space-y-3 py-3">
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Nome *</Label>
-                  <Input className="h-9 text-sm" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Email</Label>
-                  <Input type="email" className="h-9 text-sm" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
-                </div>
-              </div>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Telefone</Label>
-                  <Input className="h-9 text-sm" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Produto Vendido</Label>
-                  <Input className="h-9 text-sm" value={formData.product_sold} onChange={(e) => setFormData({ ...formData, product_sold: e.target.value })} />
-                </div>
-              </div>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Valor da Venda</Label>
-                  <Input type="number" className="h-9 text-sm" value={formData.sale_value} onChange={(e) => setFormData({ ...formData, sale_value: e.target.value })} />
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Status</Label>
-                  <Select value={formData.status || "andamento"} onValueChange={(v) => setFormData({ ...formData, status: v as Client["status"] })}>
-                    <SelectTrigger className="h-9 text-sm">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="andamento">Em Andamento</SelectItem>
-                      <SelectItem value="entregue">Entregue</SelectItem>
-                      <SelectItem value="cancelado">Cancelado</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="flex items-center justify-between rounded-md border border-border p-3">
-                <div>
-                  <p className="text-sm font-medium text-foreground">Pagamento Recorrente</p>
-                  <p className="text-xs text-muted-foreground">Cliente paga mensalmente?</p>
-                </div>
-                <Switch checked={formData.is_recurrent} onCheckedChange={(v) => setFormData({ ...formData, is_recurrent: v })} />
-              </div>
-              {formData.is_recurrent && (
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Valor Mensal</Label>
-                    <Input type="number" className="h-9 text-sm" value={formData.recurrence_value} onChange={(e) => setFormData({ ...formData, recurrence_value: e.target.value })} />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Dia do Pagamento</Label>
-                    <Input type="number" min="1" max="31" className="h-9 text-sm" value={formData.recurrence_date} onChange={(e) => setFormData({ ...formData, recurrence_date: e.target.value })} />
-                  </div>
+              {availableLeads.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  Nenhum lead disponível no pipeline
+                </p>
+              ) : (
+                <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                  {availableLeads.map((lead) => (
+                    <div
+                      key={lead.id}
+                      className="flex items-center justify-between rounded-md border border-border p-3 hover:bg-muted/50 cursor-pointer transition-colors"
+                      onClick={() => handleCreateFromLead(lead)}
+                    >
+                      <div>
+                        <p className="text-sm font-medium text-foreground">{lead.name}</p>
+                        <p className="text-xs text-muted-foreground">{lead.email || lead.phone || "Sem contato"}</p>
+                      </div>
+                      {lead.estimated_value && (
+                        <span className="text-xs font-medium text-gold">
+                          R$ {lead.estimated_value.toLocaleString("pt-BR")}
+                        </span>
+                      )}
+                    </div>
+                  ))}
                 </div>
               )}
-              <Button className="w-full h-9 text-sm" onClick={handleCreateClient} disabled={createClient.isPending}>
-                {createClient.isPending ? "Criando..." : "Criar Cliente"}
-              </Button>
             </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Create Client Dialog */}
+        <Dialog open={isDialogOpen} onOpenChange={(open) => { setIsDialogOpen(open); if (!open) resetForm(); }}>
+          <DialogContent className="sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle className="text-base">
+                {selectedLead ? `Novo Cliente (do Lead)` : "Novo Cliente"}
+              </DialogTitle>
+            </DialogHeader>
+            <ClientForm />
           </DialogContent>
         </Dialog>
 
@@ -448,68 +549,7 @@ const Clientes = () => {
             <DialogHeader>
               <DialogTitle className="text-base">Editar Cliente</DialogTitle>
             </DialogHeader>
-            <div className="space-y-3 py-3">
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Nome *</Label>
-                  <Input className="h-9 text-sm" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Email</Label>
-                  <Input type="email" className="h-9 text-sm" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
-                </div>
-              </div>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Telefone</Label>
-                  <Input className="h-9 text-sm" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Produto Vendido</Label>
-                  <Input className="h-9 text-sm" value={formData.product_sold} onChange={(e) => setFormData({ ...formData, product_sold: e.target.value })} />
-                </div>
-              </div>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Valor da Venda</Label>
-                  <Input type="number" className="h-9 text-sm" value={formData.sale_value} onChange={(e) => setFormData({ ...formData, sale_value: e.target.value })} />
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Status</Label>
-                  <Select value={formData.status || "andamento"} onValueChange={(v) => setFormData({ ...formData, status: v as Client["status"] })}>
-                    <SelectTrigger className="h-9 text-sm">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="andamento">Em Andamento</SelectItem>
-                      <SelectItem value="entregue">Entregue</SelectItem>
-                      <SelectItem value="cancelado">Cancelado</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="flex items-center justify-between rounded-md border border-border p-3">
-                <div>
-                  <p className="text-sm font-medium text-foreground">Pagamento Recorrente</p>
-                </div>
-                <Switch checked={formData.is_recurrent} onCheckedChange={(v) => setFormData({ ...formData, is_recurrent: v })} />
-              </div>
-              {formData.is_recurrent && (
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Valor Mensal</Label>
-                    <Input type="number" className="h-9 text-sm" value={formData.recurrence_value} onChange={(e) => setFormData({ ...formData, recurrence_value: e.target.value })} />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Dia do Pagamento</Label>
-                    <Input type="number" min="1" max="31" className="h-9 text-sm" value={formData.recurrence_date} onChange={(e) => setFormData({ ...formData, recurrence_date: e.target.value })} />
-                  </div>
-                </div>
-              )}
-              <Button className="w-full h-9 text-sm" onClick={handleUpdateClient} disabled={updateClient.isPending}>
-                {updateClient.isPending ? "Salvando..." : "Salvar Alterações"}
-              </Button>
-            </div>
+            <ClientForm isEdit />
           </DialogContent>
         </Dialog>
       </div>

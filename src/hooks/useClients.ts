@@ -42,7 +42,7 @@ export const useCreateClient = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async (client: Omit<ClientInsert, "user_id">) => {
+    mutationFn: async (client: Omit<ClientInsert, "user_id"> & { contract_end_date?: string | null }) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Usuário não autenticado");
       

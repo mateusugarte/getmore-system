@@ -8,13 +8,16 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
 } from "recharts";
 import { AppLayout } from "@/components/AppLayout";
 import { KPICard } from "@/components/KPICard";
 import { ProgressRing } from "@/components/ProgressRing";
-import { Users, DollarSign, Target, TrendingUp, AlertCircle, Calendar, Phone, Sparkles } from "lucide-react";
+import { Users, DollarSign, Target, TrendingUp, TrendingDown, AlertCircle, Calendar, Phone, Repeat, ShoppingCart, CreditCard } from "lucide-react";
 import { useDashboardStats } from "@/hooks/useDashboardStats";
-import { usePendingBillings, usePaidMRR, useMonthlyRevenue } from "@/hooks/useBillings";
+import { usePendingBillings } from "@/hooks/useBillings";
 import { useGoalsByMonth } from "@/hooks/useGoals";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
@@ -22,12 +25,12 @@ import { ptBR } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
+const COLORS = ["hsl(var(--gold))", "hsl(var(--primary))", "hsl(var(--muted-foreground))", "hsl(var(--destructive))"];
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const { data: stats, isLoading } = useDashboardStats();
   const { data: pendingBillings } = usePendingBillings();
-  const { data: paidMRR } = usePaidMRR();
-  const { data: monthlyRevenue } = useMonthlyRevenue();
 
   const currentMonth = new Date().getMonth() + 1;
   const currentYear = new Date().getFullYear();
@@ -46,14 +49,19 @@ const Dashboard = () => {
     return days.map((day, i) => ({ day, leads: counts[i] }));
   }, [stats?.weekLeads]);
 
-  const goalProgress = stats?.monthGoal
-    ? Math.min(100, Math.round(((stats.monthGoal.current_value || 0) / (stats.monthGoal.target_value || 1)) * 100))
-    : 0;
+  const stageChartData = useMemo(() => {
+    if (!stats?.stageCounts) return [];
+    return [
+      { name: "Contato", value: stats.stageCounts.contato_feito },
+      { name: "Aquecendo", value: stats.stageCounts.aquecendo },
+      { name: "Proposta", value: stats.stageCounts.proposta_enviada },
+      { name: "Fechado", value: stats.stageCounts.venda_concluida },
+    ];
+  }, [stats?.stageCounts]);
 
   // Get top 4 goals for display
   const displayGoals = useMemo(() => {
     if (!monthGoals) return [];
-    // Prioritize faturamento, then sort by progress
     const sorted = [...monthGoals].sort((a, b) => {
       if (a.type === "faturamento") return -1;
       if (b.type === "faturamento") return 1;
@@ -92,7 +100,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* KPI Cards - Row 1 */}
+        {/* KPI Cards - Row 1: Leads & Clientes */}
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
             <KPICard
@@ -105,29 +113,68 @@ const Dashboard = () => {
 
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
             <KPICard
-              title="Faturamento"
-              value={`R$ ${((monthlyRevenue?.total || 0) / 1000).toFixed(1)}k`}
-              subtitle={`Vendas: R$ ${((monthlyRevenue?.sales || 0) / 1000).toFixed(1)}k`}
-              icon={<DollarSign size={16} />}
+              title="Clientes"
+              value={stats?.totalClients || 0}
+              subtitle={`${stats?.recurringClients || 0} recorrentes`}
+              icon={<ShoppingCart size={16} />}
             />
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
             <KPICard
-              title="MRR Pago"
-              value={`R$ ${((paidMRR || 0) / 1000).toFixed(1)}k`}
-              subtitle="Recorrência"
-              icon={<TrendingUp size={16} />}
-              highlight
+              title="Conversão"
+              value={`${stats?.conversionRate || 0}%`}
+              subtitle="Lead → Cliente"
+              icon={<Target size={16} />}
             />
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
             <KPICard
-              title="Conversão"
-              value={`${stats?.conversionRate || 0}%`}
-              subtitle="Lead → Cliente"
-              icon={<Target size={16} />}
+              title="Vendas no Mês"
+              value={stats?.salesCount || 0}
+              subtitle={`R$ ${((stats?.monthRevenue || 0) / 1000).toFixed(1)}k`}
+              icon={<CreditCard size={16} />}
+            />
+          </motion.div>
+        </div>
+
+        {/* KPI Cards - Row 2: Financeiro */}
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
+            <KPICard
+              title="Faturamento Mês"
+              value={`R$ ${((stats?.totalMonthRevenue || 0) / 1000).toFixed(1)}k`}
+              subtitle="Vendas + Recorrência"
+              icon={<DollarSign size={16} />}
+              highlight
+            />
+          </motion.div>
+
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+            <KPICard
+              title="MRR Pago"
+              value={`R$ ${((stats?.paidMRR || 0) / 1000).toFixed(1)}k`}
+              subtitle={`${stats?.monthlyRecurrence ? `de R$ ${(stats.monthlyRecurrence / 1000).toFixed(1)}k` : 'Potencial'}`}
+              icon={<TrendingUp size={16} />}
+            />
+          </motion.div>
+
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}>
+            <KPICard
+              title="Pendente"
+              value={stats?.pendingCount || 0}
+              subtitle={`R$ ${((stats?.pendingAmount || 0) / 1000).toFixed(1)}k`}
+              icon={<AlertCircle size={16} />}
+            />
+          </motion.div>
+
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+            <KPICard
+              title="Churn"
+              value={stats?.churnCount || 0}
+              subtitle={`R$ ${((stats?.churnValue || 0) / 1000).toFixed(1)}k perdido`}
+              icon={<TrendingDown size={16} />}
             />
           </motion.div>
         </div>
@@ -136,50 +183,96 @@ const Dashboard = () => {
         <div className="grid gap-4 lg:grid-cols-3">
           {/* Chart + Goals */}
           <div className="lg:col-span-2 space-y-4">
-            {/* Leads Chart */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.25 }}
-              className="card-elevated p-4"
-            >
-              <h3 className="mb-3 text-sm font-medium text-foreground">Leads da Semana</h3>
-              <div className="h-36">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={weekChartData}>
-                    <defs>
-                      <linearGradient id="colorLeads" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="hsl(var(--gold))" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="hsl(var(--gold))" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
-                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} width={25} />
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: "hsl(var(--popover))",
-                        border: "1px solid hsl(var(--border))",
-                        borderRadius: "6px",
-                        fontSize: "11px",
-                      }}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="leads"
-                      stroke="hsl(var(--gold))"
-                      strokeWidth={2}
-                      fill="url(#colorLeads)"
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </motion.div>
+            {/* Charts Row */}
+            <div className="grid gap-4 sm:grid-cols-2">
+              {/* Leads Chart */}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.45 }}
+                className="card-elevated p-4"
+              >
+                <h3 className="mb-3 text-sm font-medium text-foreground">Leads da Semana</h3>
+                <div className="h-32">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={weekChartData}>
+                      <defs>
+                        <linearGradient id="colorLeads" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="hsl(var(--gold))" stopOpacity={0.3} />
+                          <stop offset="95%" stopColor="hsl(var(--gold))" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
+                      <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} width={25} />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "hsl(var(--popover))",
+                          border: "1px solid hsl(var(--border))",
+                          borderRadius: "6px",
+                          fontSize: "11px",
+                        }}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="leads"
+                        stroke="hsl(var(--gold))"
+                        strokeWidth={2}
+                        fill="url(#colorLeads)"
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </motion.div>
+
+              {/* Pipeline Chart */}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="card-elevated p-4"
+              >
+                <h3 className="mb-3 text-sm font-medium text-foreground">Pipeline</h3>
+                <div className="h-32 flex items-center justify-center">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={stageChartData}
+                        innerRadius={35}
+                        outerRadius={50}
+                        paddingAngle={2}
+                        dataKey="value"
+                      >
+                        {stageChartData.map((_, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "hsl(var(--popover))",
+                          border: "1px solid hsl(var(--border))",
+                          borderRadius: "6px",
+                          fontSize: "11px",
+                        }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="flex justify-center gap-3 mt-2">
+                  {stageChartData.map((stage, i) => (
+                    <div key={stage.name} className="flex items-center gap-1">
+                      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[i] }} />
+                      <span className="text-[10px] text-muted-foreground">{stage.name}</span>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            </div>
 
             {/* Goals Card */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
+              transition={{ delay: 0.55 }}
               className="card-elevated p-4"
             >
               <div className="flex items-center justify-between mb-3">
@@ -235,7 +328,7 @@ const Dashboard = () => {
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.35 }}
+              transition={{ delay: 0.6 }}
               className="card-elevated p-4"
             >
               <div className="flex items-center justify-between mb-3">
@@ -277,7 +370,7 @@ const Dashboard = () => {
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
+              transition={{ delay: 0.65 }}
               className="card-elevated p-4"
             >
               <div className="flex items-center justify-between mb-3">
@@ -319,7 +412,7 @@ const Dashboard = () => {
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.45 }}
+              transition={{ delay: 0.7 }}
               className="card-elevated p-4"
             >
               <h3 className="text-sm font-medium text-foreground mb-3">Resumo</h3>
@@ -331,6 +424,16 @@ const Dashboard = () => {
                 <div className="text-center p-2 rounded-md bg-muted/50">
                   <p className="text-lg font-bold text-foreground">{stats?.totalClients || 0}</p>
                   <p className="text-[10px] text-muted-foreground">Clientes</p>
+                </div>
+                <div className="text-center p-2 rounded-md bg-muted/50">
+                  <p className="text-lg font-bold text-foreground">{stats?.recurringClients || 0}</p>
+                  <p className="text-[10px] text-muted-foreground">Recorrentes</p>
+                </div>
+                <div className="text-center p-2 rounded-md bg-muted/50">
+                  <p className="text-lg font-bold text-foreground">
+                    R$ {((stats?.totalSalesValue || 0) / 1000).toFixed(0)}k
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">Vendas Total</p>
                 </div>
               </div>
             </motion.div>
