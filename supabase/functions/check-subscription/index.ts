@@ -59,15 +59,20 @@ serve(async (req) => {
 
     const subscriptions = await stripe.subscriptions.list({
       customer: customerId,
-      status: "active",
-      limit: 1,
+      limit: 10,
     });
-    const hasActiveSub = subscriptions.data.length > 0;
+    
+    // Accept both active and trialing subscriptions
+    const validSubscription = subscriptions.data.find(
+      (sub: Stripe.Subscription) => sub.status === "active" || sub.status === "trialing"
+    );
+    
+    const hasActiveSub = !!validSubscription;
     let productId = null;
     let subscriptionEnd = null;
 
-    if (hasActiveSub) {
-      const subscription = subscriptions.data[0];
+    if (hasActiveSub && validSubscription) {
+      const subscription = validSubscription;
       subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
       logStep("Active subscription found", { subscriptionId: subscription.id, endDate: subscriptionEnd });
       productId = subscription.items.data[0].price.product;
