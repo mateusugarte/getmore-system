@@ -62,7 +62,7 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="auth-page min-h-screen flex">
       {/* Left Side - Form */}
       <div className="flex-1 flex items-center justify-center p-8 lg:p-12 bg-background">
         <motion.div

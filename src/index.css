@@ -2,7 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+/* Login/Auth pages use Instrument Sans + Space Grotesk */
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 @layer base {
   :root {
@@ -35,7 +36,7 @@
     --input: 30 15% 88%;
     --ring: 43 80% 50%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
     /* Custom tokens - Light Mode */
     --gold: 43 80% 50%;
@@ -73,20 +74,20 @@
     --background: 20 25% 4%;
     --foreground: 35 20% 94%;
 
-    --card: 20 22% 6%;
+    --card: 20 22% 7%;
     --card-foreground: 35 20% 94%;
 
-    --popover: 20 22% 6%;
+    --popover: 20 22% 7%;
     --popover-foreground: 35 20% 94%;
 
     --primary: 43 80% 52%;
     --primary-foreground: 20 35% 4%;
 
-    --secondary: 20 20% 9%;
+    --secondary: 20 20% 10%;
     --secondary-foreground: 43 70% 62%;
 
-    --muted: 20 18% 8%;
-    --muted-foreground: 30 12% 45%;
+    --muted: 20 18% 9%;
+    --muted-foreground: 30 12% 50%;
 
     --accent: 43 80% 52%;
     --accent-foreground: 20 35% 4%;
@@ -94,8 +95,8 @@
     --destructive: 0 65% 48%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 20 18% 10%;
-    --input: 20 18% 10%;
+    --border: 20 18% 12%;
+    --input: 20 18% 12%;
     --ring: 43 80% 52%;
 
     /* Custom tokens - Dark Mode */
@@ -104,7 +105,7 @@
     --gold-metallic: 43 70% 60%;
     --coffee: 20 25% 4%;
     --coffee-dark: 20 30% 2%;
-    --coffee-light: 20 22% 8%;
+    --coffee-light: 20 22% 10%;
     --cream: 35 18% 93%;
 
     /* Shadows dark */
@@ -118,9 +119,9 @@
     --sidebar-foreground: 35 18% 90%;
     --sidebar-primary: 43 80% 52%;
     --sidebar-primary-foreground: 20 35% 4%;
-    --sidebar-accent: 20 20% 8%;
+    --sidebar-accent: 20 20% 9%;
     --sidebar-accent-foreground: 43 65% 65%;
-    --sidebar-border: 20 18% 8%;
+    --sidebar-border: 20 18% 9%;
     --sidebar-ring: 43 80% 52%;
   }
 }
@@ -136,27 +137,39 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Space Grotesk', system-ui, sans-serif;
-    font-feature-settings: 'ss01' on, 'ss02' on;
-    letter-spacing: -0.01em;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-feature-settings: 'ss01' on, 'cv01' on;
+    letter-spacing: -0.011em;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Instrument Sans', system-ui, sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
     font-weight: 600;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.025em;
+  }
+
+  /* Auth pages use original fonts */
+  .auth-page {
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+  }
+
+  .auth-page h1, .auth-page h2, .auth-page h3, .auth-page h4, .auth-page h5, .auth-page h6 {
+    font-family: 'Instrument Sans', system-ui, sans-serif;
   }
 }
 
 @layer components {
-  /* Compact card with subtle shadow */
+  /* Modern elevated card */
   .card-elevated {
-    @apply bg-card rounded-lg border border-border;
+    @apply bg-card rounded-xl border border-border/50 backdrop-blur-sm;
     box-shadow: var(--shadow-sm);
+    transition: all 0.2s ease;
   }
 
   .card-elevated:hover {
+    @apply border-border;
     box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
   }
 
   /* Gold metallic gradient button */
