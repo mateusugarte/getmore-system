@@ -293,6 +293,27 @@ export type Database = {
         }
         Relationships: []
       }
+      event_registrations: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          whatsapp: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          whatsapp: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          whatsapp?: string
+        }
+        Relationships: []
+      }
       goals: {
         Row: {
           created_at: string
@@ -394,6 +415,56 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      meetings: {
+        Row: {
+          company_name: string
+          created_at: string
+          had_sale: boolean | null
+          id: string
+          lead_id: string | null
+          meeting_date: string
+          notes: string | null
+          status: string
+          updated_at: string
+          user_id: string
+          whatsapp: string | null
+        }
+        Insert: {
+          company_name: string
+          created_at?: string
+          had_sale?: boolean | null
+          id?: string
+          lead_id?: string | null
+          meeting_date: string
+          notes?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          whatsapp?: string | null
+        }
+        Update: {
+          company_name?: string
+          created_at?: string
+          had_sale?: boolean | null
+          id?: string
+          lead_id?: string | null
+          meeting_date?: string
+          notes?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          whatsapp?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meetings_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       mensagens: {
         Row: {

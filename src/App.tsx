@@ -12,6 +12,7 @@ import Pipeline from "./pages/Pipeline";
 import Metas from "./pages/Metas";
 import Clientes from "./pages/Clientes";
 import Cobrancas from "./pages/Cobrancas";
+import Agendamentos from "./pages/Agendamentos";
 import Assinatura from "./pages/Assinatura";
 import NotFound from "./pages/NotFound";
 
@@ -33,6 +34,7 @@ const App = () => (
             <Route path="/metas" element={<ProtectedRoute><SubscriptionGuard><Metas /></SubscriptionGuard></ProtectedRoute>} />
             <Route path="/clientes" element={<ProtectedRoute><SubscriptionGuard><Clientes /></SubscriptionGuard></ProtectedRoute>} />
             <Route path="/cobrancas" element={<ProtectedRoute><SubscriptionGuard><Cobrancas /></SubscriptionGuard></ProtectedRoute>} />
+            <Route path="/agendamentos" element={<ProtectedRoute><SubscriptionGuard><Agendamentos /></SubscriptionGuard></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
