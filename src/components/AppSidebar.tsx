@@ -7,6 +7,7 @@ import {
   Target,
   Users,
   Receipt,
+  CalendarDays,
   Settings,
   LogOut,
   ChevronLeft,
@@ -42,6 +43,7 @@ const navigation = [
   { name: "Pipeline", href: "/pipeline", icon: Kanban },
   { name: "Clientes", href: "/clientes", icon: Users },
   { name: "Cobranças", href: "/cobrancas", icon: Receipt },
+  { name: "Agendamentos", href: "/agendamentos", icon: CalendarDays },
   { name: "Metas", href: "/metas", icon: Target },
   { name: "Assinatura", href: "/assinatura", icon: Crown },
 ];

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Plus, Phone, Mail, MoreVertical, Edit2, Trash2, Filter, Calendar } from "lucide-react";
+import { Plus, Phone, Mail, MoreVertical, Edit2, Trash2, Filter, Calendar, CalendarPlus } from "lucide-react";
 import { AppLayout } from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -29,6 +29,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { useLeads, useCreateLead, useUpdateLead, useDeleteLead, type Lead } from "@/hooks/useLeads";
 import { useCreateClient } from "@/hooks/useClients";
+import { useCreateMeeting } from "@/hooks/useMeetings";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
@@ -38,7 +39,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 const columns = [
   { id: "contato_feito", title: "Contato Feito", color: "bg-blue-500" },
   { id: "aquecendo", title: "Aquecendo", color: "bg-amber-500" },
-  { id: "proposta_enviada", title: "Proposta Enviada", color: "bg-purple-500" },
+  { id: "proposta_enviada", title: "Proposta Enviada / Reunião Agendada", color: "bg-purple-500" },
   { id: "venda_concluida", title: "Venda Concluída", color: "bg-emerald-500" },
 ] as const;
 
@@ -56,10 +57,11 @@ const Pipeline = () => {
   const updateLead = useUpdateLead();
   const deleteLead = useDeleteLead();
   const createClient = useCreateClient();
-
+  const createMeeting = useCreateMeeting();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isClientDialogOpen, setIsClientDialogOpen] = useState(false);
+  const [isMeetingDialogOpen, setIsMeetingDialogOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [dateFilter, setDateFilter] = useState<Date | undefined>();
   const [draggedLead, setDraggedLead] = useState<Lead | null>(null);
@@ -72,6 +74,14 @@ const Pipeline = () => {
     source: "" as "instagram" | "prospeccao" | "trafego_pago" | "indicacao" | "outro" | "",
     estimated_value: "",
     notes: "",
+  });
+
+  const [meetingFormData, setMeetingFormData] = useState({
+    company_name: "",
+    whatsapp: "",
+    notes: "",
+    meeting_date: "",
+    meeting_time: "",
   });
 
   const filteredLeads = leads?.filter((lead) => {
@@ -175,6 +185,45 @@ const Pipeline = () => {
       setSelectedLead(null);
     } catch {
       toast.error("Erro ao converter lead");
+    }
+  };
+
+  const openMeetingDialog = (lead: Lead) => {
+    setSelectedLead(lead);
+    setMeetingFormData({
+      company_name: lead.name,
+      whatsapp: lead.phone || "",
+      notes: "",
+      meeting_date: "",
+      meeting_time: "",
+    });
+    setIsMeetingDialogOpen(true);
+  };
+
+  const handleCreateMeeting = async () => {
+    if (!selectedLead || !meetingFormData.company_name || !meetingFormData.meeting_date) {
+      toast.error("Empresa e data são obrigatórios");
+      return;
+    }
+    const dateTime = meetingFormData.meeting_time
+      ? `${meetingFormData.meeting_date}T${meetingFormData.meeting_time}:00`
+      : `${meetingFormData.meeting_date}T09:00:00`;
+    try {
+      await createMeeting.mutateAsync({
+        company_name: meetingFormData.company_name,
+        whatsapp: meetingFormData.whatsapp || null,
+        notes: meetingFormData.notes || null,
+        meeting_date: dateTime,
+        status: "agendada",
+        had_sale: null,
+        lead_id: selectedLead.id,
+      });
+      await updateLead.mutateAsync({ id: selectedLead.id, stage: "proposta_enviada" });
+      toast.success("Reunião agendada e registrada no calendário!");
+      setIsMeetingDialogOpen(false);
+      setSelectedLead(null);
+    } catch {
+      toast.error("Erro ao agendar reunião");
     }
   };
 
@@ -316,10 +365,16 @@ const Pipeline = () => {
                             Editar
                           </DropdownMenuItem>
                           {lead.stage !== "venda_concluida" && (
-                            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setSelectedLead(lead); setIsClientDialogOpen(true); }}>
-                              <Plus className="mr-2 h-3.5 w-3.5" />
-                              Converter em Cliente
-                            </DropdownMenuItem>
+                            <>
+                              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setSelectedLead(lead); setIsClientDialogOpen(true); }}>
+                                <Plus className="mr-2 h-3.5 w-3.5" />
+                                Converter em Cliente
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); openMeetingDialog(lead); }}>
+                                <CalendarPlus className="mr-2 h-3.5 w-3.5" />
+                                Agendar Reunião
+                              </DropdownMenuItem>
+                            </>
                           )}
                           <DropdownMenuItem className="text-destructive" onClick={(e) => { e.stopPropagation(); handleDeleteLead(lead.id); }}>
                             <Trash2 className="mr-2 h-3.5 w-3.5" />
@@ -473,6 +528,42 @@ const Pipeline = () => {
                   {createClient.isPending ? "Convertendo..." : "Confirmar"}
                 </Button>
               </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Schedule Meeting Dialog */}
+        <Dialog open={isMeetingDialogOpen} onOpenChange={setIsMeetingDialogOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-base">Agendar Reunião</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3 py-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs">Empresa *</Label>
+                <Input className="h-9 text-sm" placeholder="Nome da empresa" value={meetingFormData.company_name} onChange={e => setMeetingFormData({ ...meetingFormData, company_name: e.target.value })} />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">WhatsApp</Label>
+                <Input className="h-9 text-sm" placeholder="(00) 00000-0000" value={meetingFormData.whatsapp} onChange={e => setMeetingFormData({ ...meetingFormData, whatsapp: e.target.value })} />
+              </div>
+              <div className="grid gap-3 grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Data *</Label>
+                  <Input type="date" className="h-9 text-sm" value={meetingFormData.meeting_date} onChange={e => setMeetingFormData({ ...meetingFormData, meeting_date: e.target.value })} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Horário</Label>
+                  <Input type="time" className="h-9 text-sm" value={meetingFormData.meeting_time} onChange={e => setMeetingFormData({ ...meetingFormData, meeting_time: e.target.value })} />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">Observação</Label>
+                <Textarea className="text-sm resize-none" rows={2} placeholder="Notas..." value={meetingFormData.notes} onChange={e => setMeetingFormData({ ...meetingFormData, notes: e.target.value })} />
+              </div>
+              <Button className="w-full h-9 text-sm" onClick={handleCreateMeeting} disabled={createMeeting.isPending}>
+                {createMeeting.isPending ? "Agendando..." : "Agendar Reunião"}
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
