@@ -426,6 +426,7 @@ export type Database = {
           meeting_date: string
           notes: string | null
           status: string
+          tags: string[] | null
           updated_at: string
           user_id: string
           whatsapp: string | null
@@ -439,6 +440,7 @@ export type Database = {
           meeting_date: string
           notes?: string | null
           status?: string
+          tags?: string[] | null
           updated_at?: string
           user_id: string
           whatsapp?: string | null
@@ -452,6 +454,7 @@ export type Database = {
           meeting_date?: string
           notes?: string | null
           status?: string
+          tags?: string[] | null
           updated_at?: string
           user_id?: string
           whatsapp?: string | null

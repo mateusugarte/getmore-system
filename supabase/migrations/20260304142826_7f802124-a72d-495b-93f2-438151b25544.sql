@@ -1,0 +1,1 @@
+ALTER TABLE public.meetings ADD COLUMN tags text[] DEFAULT '{}'::text[];
