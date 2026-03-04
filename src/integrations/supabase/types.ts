@@ -194,6 +194,7 @@ export type Database = {
           numero_whatsapp: string | null
           plataforma: string | null
           "resumo-call": string | null
+          user_id: string | null
         }
         Insert: {
           enviar_mensagem?: string | null
@@ -206,6 +207,7 @@ export type Database = {
           numero_whatsapp?: string | null
           plataforma?: string | null
           "resumo-call"?: string | null
+          user_id?: string | null
         }
         Update: {
           enviar_mensagem?: string | null
@@ -218,6 +220,7 @@ export type Database = {
           numero_whatsapp?: string | null
           plataforma?: string | null
           "resumo-call"?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -237,6 +240,7 @@ export type Database = {
           qualificação: string | null
           resumo: string | null
           ultima_mensagem: string | null
+          user_id: string | null
         }
         Insert: {
           agendamento?: string | null
@@ -253,6 +257,7 @@ export type Database = {
           qualificação?: string | null
           resumo?: string | null
           ultima_mensagem?: string | null
+          user_id?: string | null
         }
         Update: {
           agendamento?: string | null
@@ -269,6 +274,7 @@ export type Database = {
           qualificação?: string | null
           resumo?: string | null
           ultima_mensagem?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -358,16 +364,19 @@ export type Database = {
           created_at: string
           id: string
           ideia: string | null
+          user_id: string | null
         }
         Insert: {
           created_at: string
           id?: string
           ideia?: string | null
+          user_id?: string | null
         }
         Update: {
           created_at?: string
           id?: string
           ideia?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -478,6 +487,7 @@ export type Database = {
           nome: string | null
           numero_telefone: string | null
           tipo_mensagem: string | null
+          user_id: string | null
         }
         Insert: {
           acao_mensagem?: string | null
@@ -487,6 +497,7 @@ export type Database = {
           nome?: string | null
           numero_telefone?: string | null
           tipo_mensagem?: string | null
+          user_id?: string | null
         }
         Update: {
           acao_mensagem?: string | null
@@ -496,6 +507,7 @@ export type Database = {
           nome?: string | null
           numero_telefone?: string | null
           tipo_mensagem?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -563,6 +575,7 @@ export type Database = {
           modelo: string | null
           nome: string | null
           produto: string | null
+          user_id: string | null
           valor: string | null
         }
         Insert: {
@@ -571,6 +584,7 @@ export type Database = {
           modelo?: string | null
           nome?: string | null
           produto?: string | null
+          user_id?: string | null
           valor?: string | null
         }
         Update: {
@@ -579,6 +593,7 @@ export type Database = {
           modelo?: string | null
           nome?: string | null
           produto?: string | null
+          user_id?: string | null
           valor?: string | null
         }
         Relationships: []
