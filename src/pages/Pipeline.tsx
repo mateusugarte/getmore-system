@@ -28,6 +28,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { useLeads, useCreateLead, useUpdateLead, useDeleteLead, type Lead } from "@/hooks/useLeads";
+import { TagInput, TagList } from "@/components/TagInput";
 import { useCreateClient } from "@/hooks/useClients";
 import { useCreateMeeting } from "@/hooks/useMeetings";
 import { toast } from "sonner";
@@ -74,6 +75,7 @@ const Pipeline = () => {
     source: "" as "instagram" | "prospeccao" | "trafego_pago" | "indicacao" | "outro" | "",
     estimated_value: "",
     notes: "",
+    tags: [] as string[],
   });
 
   const [meetingFormData, setMeetingFormData] = useState({
@@ -131,10 +133,11 @@ const Pipeline = () => {
         estimated_value: formData.estimated_value ? parseFloat(formData.estimated_value) : null,
         notes: formData.notes || null,
         stage: "contato_feito",
+        tags: formData.tags.length > 0 ? formData.tags : null,
       });
       toast.success("Lead criado com sucesso!");
       setIsDialogOpen(false);
-      setFormData({ name: "", phone: "", email: "", source: "", estimated_value: "", notes: "" });
+      setFormData({ name: "", phone: "", email: "", source: "", estimated_value: "", notes: "", tags: [] });
     } catch {
       toast.error("Erro ao criar lead");
     }
@@ -151,6 +154,7 @@ const Pipeline = () => {
         source: (formData.source as Lead["source"]) || null,
         estimated_value: formData.estimated_value ? parseFloat(formData.estimated_value) : null,
         notes: formData.notes || null,
+        tags: formData.tags.length > 0 ? formData.tags : null,
       });
       toast.success("Lead atualizado!");
       setIsEditDialogOpen(false);
@@ -236,6 +240,7 @@ const Pipeline = () => {
       source: lead.source || "",
       estimated_value: lead.estimated_value?.toString() || "",
       notes: lead.notes || "",
+      tags: lead.tags || [],
     });
     setIsEditDialogOpen(true);
   };
@@ -384,6 +389,9 @@ const Pipeline = () => {
                       </DropdownMenu>
                     </div>
 
+                    {/* Tags */}
+                    <TagList tags={lead.tags || []} className="mt-1.5" />
+
                     {/* Source Badge & Value */}
                     <div className="mt-2 flex items-center justify-between">
                       {lead.source && (
@@ -450,6 +458,10 @@ const Pipeline = () => {
                 <Label htmlFor="notes" className="text-xs">Observações</Label>
                 <Textarea id="notes" placeholder="Notas..." className="text-sm resize-none" rows={2} value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} />
               </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">Etiquetas</Label>
+                <TagInput tags={formData.tags} onChange={(tags) => setFormData({ ...formData, tags })} />
+              </div>
               <Button className="w-full h-9 text-sm" onClick={handleCreateLead} disabled={createLead.isPending}>
                 {createLead.isPending ? "Criando..." : "Criar Lead"}
               </Button>
@@ -502,6 +514,10 @@ const Pipeline = () => {
               <div className="space-y-1.5">
                 <Label className="text-xs">Observações</Label>
                 <Textarea className="text-sm resize-none" rows={2} value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">Etiquetas</Label>
+                <TagInput tags={formData.tags} onChange={(tags) => setFormData({ ...formData, tags })} />
               </div>
               <Button className="w-full h-9 text-sm" onClick={handleUpdateLead} disabled={updateLead.isPending}>
                 {updateLead.isPending ? "Salvando..." : "Salvar Alterações"}

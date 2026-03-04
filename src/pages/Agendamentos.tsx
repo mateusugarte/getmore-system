@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSameMonth, addMonths, subMonths, getDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import { TagInput, TagList } from "@/components/TagInput";
 
 const Agendamentos = () => {
   const { data: meetings, isLoading } = useMeetings();
@@ -36,6 +37,7 @@ const Agendamentos = () => {
     notes: "",
     meeting_date: "",
     meeting_time: "",
+    tags: [] as string[],
   });
 
   // Calendar days
@@ -76,10 +78,11 @@ const Agendamentos = () => {
         status: "agendada",
         had_sale: null,
         lead_id: null,
-      });
+        tags: formData.tags.length > 0 ? formData.tags : [],
+      } as any);
       toast.success("Reunião agendada!");
       setIsCreateOpen(false);
-      setFormData({ company_name: "", whatsapp: "", notes: "", meeting_date: "", meeting_time: "" });
+      setFormData({ company_name: "", whatsapp: "", notes: "", meeting_date: "", meeting_time: "", tags: [] });
     } catch {
       toast.error("Erro ao agendar reunião");
     }
@@ -301,6 +304,7 @@ const Agendamentos = () => {
                         {meeting.notes && (
                           <p className="text-[11px] text-muted-foreground">{meeting.notes}</p>
                         )}
+                        <TagList tags={(meeting as any).tags || []} />
                         <div className="flex gap-1.5">
                           {meeting.status === "agendada" && (
                             <Button
@@ -373,6 +377,10 @@ const Agendamentos = () => {
               <div className="space-y-1.5">
                 <Label className="text-xs">Observação</Label>
                 <Textarea className="text-sm resize-none" rows={2} placeholder="Notas sobre a reunião..." value={formData.notes} onChange={e => setFormData({ ...formData, notes: e.target.value })} />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">Etiquetas</Label>
+                <TagInput tags={formData.tags} onChange={(tags) => setFormData({ ...formData, tags })} />
               </div>
               <Button className="w-full h-9 text-sm" onClick={handleCreate} disabled={createMeeting.isPending}>
                 {createMeeting.isPending ? "Agendando..." : "Agendar Reunião"}
