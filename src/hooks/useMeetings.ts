@@ -11,6 +11,7 @@ export interface Meeting {
   meeting_date: string;
   status: string;
   had_sale: boolean | null;
+  tags: string[] | null;
   created_at: string;
   updated_at: string;
 }

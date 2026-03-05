@@ -209,9 +209,8 @@ const Pipeline = () => {
       toast.error("Empresa e data são obrigatórios");
       return;
     }
-    const dateTime = meetingFormData.meeting_time
-      ? `${meetingFormData.meeting_date}T${meetingFormData.meeting_time}:00`
-      : `${meetingFormData.meeting_date}T09:00:00`;
+    const localDate = new Date(`${meetingFormData.meeting_date}T${meetingFormData.meeting_time || "09:00"}:00`);
+    const dateTime = localDate.toISOString();
     try {
       await createMeeting.mutateAsync({
         company_name: meetingFormData.company_name,
@@ -221,6 +220,7 @@ const Pipeline = () => {
         status: "agendada",
         had_sale: null,
         lead_id: selectedLead.id,
+        tags: [],
       });
       await updateLead.mutateAsync({ id: selectedLead.id, stage: "proposta_enviada" });
       toast.success("Reunião agendada e registrada no calendário!");
