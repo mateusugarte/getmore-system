@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Plus, Calendar as CalendarIcon, Phone, Building2, CheckCircle2, XCircle, TrendingUp, Clock, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, Calendar as CalendarIcon, Phone, Building2, CheckCircle2, XCircle, TrendingUp, Clock, Trash2, Pencil, ChevronLeft, ChevronRight } from "lucide-react";
 import { AppLayout } from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +19,21 @@ import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { TagInput, TagList } from "@/components/TagInput";
 
+/** Build an ISO string preserving local time (appends timezone offset) */
+const toLocalISOString = (dateStr: string, timeStr: string) => {
+  const t = timeStr || "09:00";
+  const localDate = new Date(`${dateStr}T${t}:00`);
+  return localDate.toISOString();
+};
+
+/** Extract local date (yyyy-MM-dd) and time (HH:mm) from an ISO/UTC date string */
+const parseLocalDateTime = (isoStr: string) => {
+  const d = new Date(isoStr);
+  const date = format(d, "yyyy-MM-dd");
+  const time = format(d, "HH:mm");
+  return { date, time };
+};
+
 const Agendamentos = () => {
   const { data: meetings, isLoading } = useMeetings();
   const createMeeting = useCreateMeeting();
@@ -28,6 +43,7 @@ const Agendamentos = () => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
   const [isStatusOpen, setIsStatusOpen] = useState(false);
   const [selectedMeeting, setSelectedMeeting] = useState<Meeting | null>(null);
 
@@ -40,11 +56,22 @@ const Agendamentos = () => {
     tags: [] as string[],
   });
 
+  const [editFormData, setEditFormData] = useState({
+    company_name: "",
+    whatsapp: "",
+    notes: "",
+    meeting_date: "",
+    meeting_time: "",
+    tags: [] as string[],
+    status: "agendada",
+    had_sale: null as boolean | null,
+  });
+
   // Calendar days
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
   const calendarDays = eachDayOfInterval({ start: monthStart, end: monthEnd });
-  const startDayOfWeek = getDay(monthStart); // 0=Sunday
+  const startDayOfWeek = getDay(monthStart);
 
   // Metrics
   const stats = useMemo(() => {
@@ -66,9 +93,7 @@ const Agendamentos = () => {
       toast.error("Empresa e data são obrigatórios");
       return;
     }
-    const dateTime = formData.meeting_time
-      ? `${formData.meeting_date}T${formData.meeting_time}:00`
-      : `${formData.meeting_date}T09:00:00`;
+    const dateTime = toLocalISOString(formData.meeting_date, formData.meeting_time);
     try {
       await createMeeting.mutateAsync({
         company_name: formData.company_name,
@@ -88,12 +113,52 @@ const Agendamentos = () => {
     }
   };
 
+  const openEditDialog = (meeting: Meeting) => {
+    const { date, time } = parseLocalDateTime(meeting.meeting_date);
+    setEditFormData({
+      company_name: meeting.company_name,
+      whatsapp: meeting.whatsapp || "",
+      notes: meeting.notes || "",
+      meeting_date: date,
+      meeting_time: time,
+      tags: (meeting as any).tags || [],
+      status: meeting.status,
+      had_sale: meeting.had_sale,
+    });
+    setSelectedMeeting(meeting);
+    setIsEditOpen(true);
+  };
+
+  const handleEdit = async () => {
+    if (!selectedMeeting || !editFormData.company_name || !editFormData.meeting_date) {
+      toast.error("Empresa e data são obrigatórios");
+      return;
+    }
+    const dateTime = toLocalISOString(editFormData.meeting_date, editFormData.meeting_time);
+    try {
+      await updateMeeting.mutateAsync({
+        id: selectedMeeting.id,
+        company_name: editFormData.company_name,
+        whatsapp: editFormData.whatsapp || null,
+        notes: editFormData.notes || null,
+        meeting_date: dateTime,
+        status: editFormData.status,
+        had_sale: editFormData.status === "realizada" ? editFormData.had_sale : null,
+        tags: editFormData.tags.length > 0 ? editFormData.tags : [],
+      } as any);
+      toast.success("Reunião atualizada!");
+      setIsEditOpen(false);
+      setSelectedMeeting(null);
+    } catch {
+      toast.error("Erro ao atualizar reunião");
+    }
+  };
+
   const handleUpdateStatus = async (status: string) => {
     if (!selectedMeeting) return;
     try {
       await updateMeeting.mutateAsync({ id: selectedMeeting.id, status });
       if (status === "realizada") {
-        // Keep dialog open to ask about sale
         setSelectedMeeting({ ...selectedMeeting, status: "realizada" });
       } else {
         toast.success("Status atualizado!");
@@ -142,7 +207,6 @@ const Agendamentos = () => {
     );
   }
 
-  // Meetings for selected date
   const selectedDayMeetings = selectedDate ? getMeetingsForDay(selectedDate) : [];
 
   return (
@@ -174,7 +238,6 @@ const Agendamentos = () => {
           {/* Calendar */}
           <Card className="lg:col-span-2">
             <CardContent className="p-4">
-              {/* Month Navigation */}
               <div className="flex items-center justify-between mb-4">
                 <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}>
                   <ChevronLeft size={16} />
@@ -187,16 +250,13 @@ const Agendamentos = () => {
                 </Button>
               </div>
 
-              {/* Day Headers */}
               <div className="grid grid-cols-7 gap-1 mb-1">
                 {dayNames.map(d => (
                   <div key={d} className="text-center text-[10px] font-medium text-muted-foreground py-1">{d}</div>
                 ))}
               </div>
 
-              {/* Calendar Grid */}
               <div className="grid grid-cols-7 gap-1">
-                {/* Empty cells for offset */}
                 {Array.from({ length: startDayOfWeek }).map((_, i) => (
                   <div key={`empty-${i}`} className="h-16" />
                 ))}
@@ -319,6 +379,14 @@ const Agendamentos = () => {
                           <Button
                             size="sm"
                             variant="ghost"
+                            className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
+                            onClick={() => openEditDialog(meeting)}
+                          >
+                            <Pencil size={12} />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
                             className="h-7 w-7 p-0 text-destructive"
                             onClick={() => handleDelete(meeting.id)}
                           >
@@ -384,6 +452,77 @@ const Agendamentos = () => {
               </div>
               <Button className="w-full h-9 text-sm" onClick={handleCreate} disabled={createMeeting.isPending}>
                 {createMeeting.isPending ? "Agendando..." : "Agendar Reunião"}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit Meeting Dialog */}
+        <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-base">Editar Reunião</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3 py-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs">Empresa *</Label>
+                <Input className="h-9 text-sm" placeholder="Nome da empresa" value={editFormData.company_name} onChange={e => setEditFormData({ ...editFormData, company_name: e.target.value })} />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">WhatsApp</Label>
+                <Input className="h-9 text-sm" placeholder="(00) 00000-0000" value={editFormData.whatsapp} onChange={e => setEditFormData({ ...editFormData, whatsapp: e.target.value })} />
+              </div>
+              <div className="grid gap-3 grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Data *</Label>
+                  <Input type="date" className="h-9 text-sm" value={editFormData.meeting_date} onChange={e => setEditFormData({ ...editFormData, meeting_date: e.target.value })} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Horário</Label>
+                  <Input type="time" className="h-9 text-sm" value={editFormData.meeting_time} onChange={e => setEditFormData({ ...editFormData, meeting_time: e.target.value })} />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">Status</Label>
+                <Select value={editFormData.status} onValueChange={v => setEditFormData({ ...editFormData, status: v })}>
+                  <SelectTrigger className="h-9 text-sm">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="agendada">Agendada</SelectItem>
+                    <SelectItem value="realizada">Realizada</SelectItem>
+                    <SelectItem value="no_show">No Show</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {editFormData.status === "realizada" && (
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Houve venda?</Label>
+                  <Select
+                    value={editFormData.had_sale === null ? "null" : editFormData.had_sale ? "true" : "false"}
+                    onValueChange={v => setEditFormData({ ...editFormData, had_sale: v === "null" ? null : v === "true" })}
+                  >
+                    <SelectTrigger className="h-9 text-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="null">Não definido</SelectItem>
+                      <SelectItem value="true">Sim</SelectItem>
+                      <SelectItem value="false">Não</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+              <div className="space-y-1.5">
+                <Label className="text-xs">Observação</Label>
+                <Textarea className="text-sm resize-none" rows={2} placeholder="Notas sobre a reunião..." value={editFormData.notes} onChange={e => setEditFormData({ ...editFormData, notes: e.target.value })} />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">Etiquetas</Label>
+                <TagInput tags={editFormData.tags} onChange={(tags) => setEditFormData({ ...editFormData, tags })} />
+              </div>
+              <Button className="w-full h-9 text-sm" onClick={handleEdit} disabled={updateMeeting.isPending}>
+                {updateMeeting.isPending ? "Salvando..." : "Salvar Alterações"}
               </Button>
             </div>
           </DialogContent>
