@@ -549,7 +549,7 @@ const Clientes = () => {
             <DialogHeader>
               <DialogTitle className="text-base">Editar Cliente</DialogTitle>
             </DialogHeader>
-            <ClientForm isEdit />
+            {renderClientForm(true)}
           </DialogContent>
         </Dialog>
       </div>
