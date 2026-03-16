@@ -539,7 +539,7 @@ const Clientes = () => {
                 {selectedLead ? `Novo Cliente (do Lead)` : "Novo Cliente"}
               </DialogTitle>
             </DialogHeader>
-            <ClientForm />
+            {renderClientForm(false)}
           </DialogContent>
         </Dialog>
 
