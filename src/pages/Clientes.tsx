@@ -263,7 +263,7 @@ const Clientes = () => {
     );
   }
 
-  const ClientForm = ({ isEdit = false }: { isEdit?: boolean }) => (
+  const renderClientForm = (isEdit: boolean) => (
     <div className="space-y-3 py-3">
       {selectedLead && !isEdit && (
         <div className="bg-muted/50 rounded-md p-2 text-xs text-muted-foreground">
@@ -273,31 +273,31 @@ const Clientes = () => {
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="space-y-1.5">
           <Label className="text-xs">Nome *</Label>
-          <Input className="h-9 text-sm" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
+          <Input className="h-9 text-sm" value={formData.name} onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))} />
         </div>
         <div className="space-y-1.5">
           <Label className="text-xs">Email</Label>
-          <Input type="email" className="h-9 text-sm" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
+          <Input type="email" className="h-9 text-sm" value={formData.email} onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))} />
         </div>
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="space-y-1.5">
           <Label className="text-xs">Telefone</Label>
-          <Input className="h-9 text-sm" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
+          <Input className="h-9 text-sm" value={formData.phone} onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))} />
         </div>
         <div className="space-y-1.5">
           <Label className="text-xs">Produto Vendido</Label>
-          <Input className="h-9 text-sm" value={formData.product_sold} onChange={(e) => setFormData({ ...formData, product_sold: e.target.value })} />
+          <Input className="h-9 text-sm" value={formData.product_sold} onChange={(e) => setFormData(prev => ({ ...prev, product_sold: e.target.value }))} />
         </div>
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="space-y-1.5">
           <Label className="text-xs">Valor da Venda</Label>
-          <Input type="number" className="h-9 text-sm" value={formData.sale_value} onChange={(e) => setFormData({ ...formData, sale_value: e.target.value })} />
+          <Input type="number" className="h-9 text-sm" value={formData.sale_value} onChange={(e) => setFormData(prev => ({ ...prev, sale_value: e.target.value }))} />
         </div>
         <div className="space-y-1.5">
           <Label className="text-xs">Status</Label>
-          <Select value={formData.status || "andamento"} onValueChange={(v) => setFormData({ ...formData, status: v as Client["status"] })}>
+          <Select value={formData.status || "andamento"} onValueChange={(v) => setFormData(prev => ({ ...prev, status: v as Client["status"] }))}>
             <SelectTrigger className="h-9 text-sm">
               <SelectValue />
             </SelectTrigger>
@@ -314,23 +314,23 @@ const Clientes = () => {
           <p className="text-sm font-medium text-foreground">Pagamento Recorrente</p>
           <p className="text-xs text-muted-foreground">Cliente paga mensalmente?</p>
         </div>
-        <Switch checked={formData.is_recurrent} onCheckedChange={(v) => setFormData({ ...formData, is_recurrent: v })} />
+        <Switch checked={formData.is_recurrent} onCheckedChange={(v) => setFormData(prev => ({ ...prev, is_recurrent: v }))} />
       </div>
       {formData.is_recurrent && (
         <>
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="space-y-1.5">
               <Label className="text-xs">Valor Mensal</Label>
-              <Input type="number" className="h-9 text-sm" value={formData.recurrence_value} onChange={(e) => setFormData({ ...formData, recurrence_value: e.target.value })} />
+              <Input type="number" className="h-9 text-sm" value={formData.recurrence_value} onChange={(e) => setFormData(prev => ({ ...prev, recurrence_value: e.target.value }))} />
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs">Dia do Pagamento</Label>
-              <Input type="number" min="1" max="31" className="h-9 text-sm" value={formData.recurrence_date} onChange={(e) => setFormData({ ...formData, recurrence_date: e.target.value })} />
+              <Input type="number" min="1" max="31" className="h-9 text-sm" value={formData.recurrence_date} onChange={(e) => setFormData(prev => ({ ...prev, recurrence_date: e.target.value }))} />
             </div>
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs">Data Fim do Contrato (opcional)</Label>
-            <Input type="date" className="h-9 text-sm" value={formData.contract_end_date} onChange={(e) => setFormData({ ...formData, contract_end_date: e.target.value })} />
+            <Input type="date" className="h-9 text-sm" value={formData.contract_end_date} onChange={(e) => setFormData(prev => ({ ...prev, contract_end_date: e.target.value }))} />
             <p className="text-[10px] text-muted-foreground">Deixe vazio para contrato sem prazo definido</p>
           </div>
         </>
